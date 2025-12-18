@@ -1,6 +1,6 @@
 -- comment directives, may be removed if currently debugging, insert a space to disable
---! nolint
---! nocheck
+--!nolint
+--!nocheck
 
 -- hello_mpz, big integer module of the helloGMP library
 
@@ -172,7 +172,7 @@ function hello_mpz.fromString(s)
 		local chunk = tonumber(s:sub(starti, p))
 
 		-- assert chunk (should never fail if validation passed)
-		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."–"..p)
+		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."ï¿½"..p)
 
 		table_insert(limbs, chunk)
 		p = starti - 1
@@ -867,13 +867,10 @@ end
 
 -- small multi-limb threshold
 -- is used when a huge number is multiplied by a small number for optimization purposes
-local SMALL_LIMBS = 3  -- 1–3 limbs considered small
+local SMALL_LIMBS = 3  -- 1-3 limbs considered small
 
 local COMBA_CUTOFF = 10
 local KARATSUBA_CUTOFF = 40
-
-local SQR_COMBA_CUTOFF = 16
-local SQR_KARATSUBA_CUTOFF = 48
 
 ----------------------------------------------------
 -- Comba system
@@ -1089,14 +1086,14 @@ function hello_mpz.__mul(a, b)
 		return mulBySingleLimb(a, b.limbs[1] * b.sign)
 	end
 
-	-- small × small (both small)
+	-- small * small (both small)
 	if nALimbs <= SMALL_LIMBS and nBLimbs <= SMALL_LIMBS then
 		local limbs = schoolbookMulLimbs(a.limbs, b.limbs)
 		normalize_limbs(limbs)
 		return make(a.sign * b.sign, limbs)
 	end
 
-	-- explicit small × large
+	-- explicit small * large
 	if nALimbs <= SMALL_LIMBS and nBLimbs > SMALL_LIMBS then
 		local limbs = mulSmallByLarge(a.limbs, b.limbs)
 		normalize_limbs(limbs)
@@ -1202,7 +1199,7 @@ local function knuthLimbs(A, B)
 
 	m = #U - n - 1
 
-	-- D2–D7: Main division loop
+	-- D2ï¿½D7: Main division loop
 	local Q = {}
 	for i = 1, m + 1 do Q[i] = 0 end
 
