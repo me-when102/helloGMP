@@ -2,8 +2,14 @@
 The `hello_mpz` module is the core of the helloGMP library, providing high‑performance arbitrary‑precision integer arithmetic. It is designed to handle numbers far beyond native Luau limits, while maintaining speed and correctness through optimized algorithms. This module serves as the foundation for advanced features such as number theory, combinatorics, and base conversions.
 
 ## ✨ Features of `hello_mpz`
-**HelloGMP's** `hello_mpz` module includes:
+**HelloGMP's** `hello_mpz` module includes a wide range of capabilities.
+For clarity, the following complexity notation is used throughout:
 
+- `n` → size of input value (e.g., number of digits)
+- `m` → number of limbs in the big integer
+- `len(s)` → length of input string
+
+### Available Features
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, `//`, `%`, `^`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`  
   (`>` and `>=` are inherited from `__lt` and `__le`)
@@ -65,10 +71,14 @@ The `hello_mpz` module is the core of the helloGMP library, providing high‑per
 - **Random number generation**:
     - `random(min, max)` → Produces a uniformly distributed random integer within the specified range, `O(n)` per candidate
 
-### Complexity Legend
-- `n` → size of input value (e.g., number of digits)
-- `m` → number of limbs in the big integer
-- `len(s)` → length of input string
-
 ## Usage of `hello_mpz`
-WIP.
+### Construction and Representation
+```lua
+local hello_mpz = require(path.to.hello_mpz) -- presumably helloGMP.hello_mpz
+
+local a = hello_mpz.new("43673421578943798437894329890432174321")
+local b = hello_mpz.fromString("1273478903217489056984790469879")
+local c = hello_mpz.fromNumber(43724732432)
+
+local d = hello_mpz("943267463217843126498321467843216981") -- shortcut
+```

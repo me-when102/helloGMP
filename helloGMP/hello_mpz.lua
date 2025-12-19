@@ -249,6 +249,8 @@ end
 -- Converts the hello_mpz number to a scientific string.
 function hello_mpz:toScientific(precision)
 	precision = precision or 15 -- digits in mantissa
+	assert(precision > 0, "Precision must be 1 or greater, got: ".. precision)
+	
 	if self.sign == 0 then return "0" end
 
 	local str = self:toString()
