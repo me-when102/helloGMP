@@ -68,17 +68,9 @@ This example omits some files for brevity. Refer to the repository’s `src/` di
 
 Recreate the following structure inside `ReplicatedStorage`:
 
-ReplicatedStorage/
-└── helloGMP/
-    ├── hello_mpz
-    ├── hello_mpq
-    ├── hello_mpf
-    ├── base_settings
-    ├── extensions/
-    │   ├── hello_complex
-    │   ├── hello_datetime
-    │   └── etc...
-
+    ![](./assets/install-images/hellogmp-directory.png)  
+    *The current helloGMP directory as of version 1.0.0*
+    
 ### Source File Mapping
 The table below shows common mappings. Not all files are listed.
 
