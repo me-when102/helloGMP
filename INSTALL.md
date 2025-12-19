@@ -68,9 +68,9 @@ This example omits some files for brevity. Refer to the repository’s `src/` di
 
 Recreate the following structure inside `ReplicatedStorage`:
 
-    ![](./assets/install-images/hellogmp-directory.png)  
-    *The current helloGMP directory as of version 1.0.0*
-    
+![](./assets/install-images/hellogmp-directory.png)  
+*The current helloGMP directory as of version 1.0.0*
+
 ### Source File Mapping
 The table below shows common mappings. Not all files are listed.
 
