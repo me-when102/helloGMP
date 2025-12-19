@@ -76,9 +76,32 @@ For clarity, the following complexity notation is used throughout:
 ```lua
 local hello_mpz = require(path.to.hello_mpz) -- presumably helloGMP.hello_mpz
 
+-- .new function accepts both strings and numbers
 local a = hello_mpz.new("43673421578943798437894329890432174321")
+local a2 = hello_mpz.new(887647654)
+
 local b = hello_mpz.fromString("1273478903217489056984790469879")
+
 local c = hello_mpz.fromNumber(43724732432)
+local c2 = hello_mpz.fromNumber(43721894032174581234) -- precision loss
 
 local d = hello_mpz("943267463217843126498321467843216981") -- shortcut
+
+-- printing the variable automatically fires __tostring metamethod.
+-- you can use v:toString() as well.
+print("a:", a)
+print("a2:", a2)
+print("b:", b)
+print("c:", c)
+print("c2:", c2)
+print("d:", d)
+
+-- printing the variable in scientific notation.
+-- optionally you can set how many significant digits you want it to display
+print("a (scientific):", a:toScientific())
+print("a2 (scientific):", a2:toScientific())
+print("b (scientific):", b:toScientific())
+print("c (scientific, 3 digits):", c:toScientific(3))
+print("c2 (scientific, 4 digits):", c2:toScientific(4))
+print("d (scientific, 20 digits):", d:toScientific(20))
 ```
