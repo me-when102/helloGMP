@@ -1,6 +1,6 @@
 # Getting Started: Getting helloGMP into Roblox Studio/Luau
 You are not able to directly import the **helloGMP** library into Roblox studio, but you are able to build it manually into the engine.
-The entire library is stored under the `src/` folder in the repo. 
+The entire library is stored under the `src/` folder in the repo.
 
 ## 🧱 Building the Essentials
 
@@ -28,6 +28,7 @@ The entire library is stored under the `src/` folder in the repo.
 
 ### ❓ Confirmation
 To check if you have followed the steps correctly, add a Server Script, parent it under `ServerScriptService` and then paste this code into the script.
+If the script successfully prints the result correctly then you successfully built the core foundation of **helloGMP**!
 ```lua
 local hello_mpz = require(game.ReplicatedStorage.helloGMP.hello_mpz)
 
@@ -37,4 +38,3 @@ local b = hello_mpz.fromString("43718904328195321")
 local result = a * b -- multiplication
 print(result) -- 19113425953622149599590952392041
 ```
-
