@@ -164,7 +164,7 @@ function hello_mpz.fromString(s)
 
 	-- strict validation: only digits allowed
 	assert(s:match("^%d+$") or setting_mode ~= "strict", "Invalid string: contains non-digit characters ("..s..")")
-	
+
 	local limbs = {}
 	local p = #s
 	while p > 0 do
@@ -172,7 +172,7 @@ function hello_mpz.fromString(s)
 		local chunk = tonumber(s:sub(starti, p))
 
 		-- assert chunk (should never fail if validation passed)
-		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."�"..p)
+		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."-"..p)
 
 		table_insert(limbs, chunk)
 		p = starti - 1
@@ -250,7 +250,7 @@ end
 function hello_mpz:toScientific(precision)
 	precision = precision or 15 -- digits in mantissa
 	assert(precision > 0, "Precision must be 1 or greater, got: ".. precision)
-	
+
 	if self.sign == 0 then return "0" end
 
 	local str = self:toString()
@@ -339,12 +339,12 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	if self:isZero() then
 		return alphabet:sub(1,1)
 	end
-	
+
 	local isNegative = self.sign < 0
-	
+
 	-- Unary/base-1 case (streaming in limb chunks)
 	if base == 1 then
-		
+
 		self = self:abs()
 
 		local symbol = alphabet:sub(1,1)
@@ -374,9 +374,9 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	end
 
 	-- Normal base >= 2
-	
+
 	self = self:abs()
-	
+
 	local baseHGMP = hello_mpz.fromNumber(base)
 	local result = {}
 
@@ -823,11 +823,11 @@ end
 
 -- Adds a (hello_mpz number) and b (hello_mpz number).
 function hello_mpz.__add(a, b)
-	
+
 	-- shortcut: if a == 0 or b == 0 then yes
 	if a.sign == 0 then return make(b.sign, b.limbs) end
 	if b.sign == 0 then return make(a.sign, a.limbs) end
-	
+
 	-- addition
 	if a.sign == b.sign then
 		local limbs = addAbsLimbs(a.limbs, b.limbs)
@@ -1071,7 +1071,7 @@ function hello_mpz.__mul(a, b)
 	if a.sign == 0 or b.sign == 0 then
 		return ZERO
 	end
-	
+
 	-- fast path: powers of 10 without toString
 	if isPow10Limbs(a) then
 		return mulByPow10_inplace(b:clone(), pow10_k_from_limbs(a)) -- return b * 10^k
@@ -1171,7 +1171,7 @@ local function knuthLimbs(A, B)
 		if carry > 0 then R[#R + 1] = carry end
 		return R
 	end
-	
+
 	-- Undo normalization on remainder slice
 	local function unnormalize_slice(U, d, n)
 		local R = {}
@@ -1201,7 +1201,7 @@ local function knuthLimbs(A, B)
 
 	m = #U - n - 1
 
-	-- D2�D7: Main division loop
+	-- D2-D7: Main division loop
 	local Q = {}
 	for i = 1, m + 1 do Q[i] = 0 end
 
@@ -1209,7 +1209,7 @@ local function knuthLimbs(A, B)
 	local vn1 = V[n - 1]
 
 	for j = m, 0, -1 do
-		
+
 		-- D3: Estimate quotient digit q^
 		local ujn  = U[j + n + 1]
 		local ujn1 = U[j + n]
@@ -1220,7 +1220,7 @@ local function knuthLimbs(A, B)
 		local rhat = num - qhat * vn
 
 		if qhat > BASE - 1 then qhat = BASE - 1 end
-		
+
 		-- Correct q^ if overestimated
 		while qhat * vn1 > rhat * BASE + ujn2 do
 			qhat = qhat - 1
@@ -1418,7 +1418,7 @@ local function isqrt_binary(N)
 			high = mid - ONE
 		end
 	end
-	
+
 	return high -- floor(sqrt(self))
 end
 
@@ -1477,7 +1477,7 @@ end
 
 -- newton iroot function
 local function iroot_newton(N, i)
-	
+
 	if N.sign == 0 then
 		return ZERO
 	end
@@ -1528,12 +1528,12 @@ function hello_mpz:iroot(i)
 	checkhello_mpzType(i, "Indice")
 	assert(i.sign > 0, "Root must be positive")  -- i is HGMP
 	assert(self.sign >= 0, "Root of negative number not supported")
-	
+
 	-- shortcut: i = 2 -> square root
 	if i == TWO then
 		return self:isqrt()
 	end
-	
+
 	local limbCount = #self.limbs
 
 	if limbCount < IROOT_NEWTON_CUTOFF then

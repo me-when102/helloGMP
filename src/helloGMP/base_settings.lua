@@ -6,7 +6,7 @@ local settings = {}
 -- set-based settings are always lower-case, otherwise error.
 
 -- [[ CORE SETTINGS ]]
-settings.BASE = 10^7 -- limb base (10^7 recommended, and results will likely change, so don't change this)
+settings.BASE = 10^7 -- limb base (decimal base is a must or it will corrupt, above 10^7 (like 10^8) leads to precision drift)
 settings.MODE = "strict" -- parsing mode; options: strict, nonstrict
 
 -- [[ FLOAT SETTINGS ]]

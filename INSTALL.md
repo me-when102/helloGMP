@@ -14,7 +14,7 @@ The entire library is stored under the `src/` folder in the repo.
     ![](./assets/install-images/install-step-2.png)  
     *Add two ModuleScripts named `hello_mpz` and `base_settings`.*
 
-3. **Open the source files** on GitHub (`src/helloGMP/hello_mpz.lua` and `base_settings.lua`), select the entire code, then copy the code into the clipboard.
+3. **Navigate the matching source file names** in the Github repo and open one of them (`src/helloGMP/hello_mpz.lua` or `base_settings.lua`), select the entire code, then copy the code into the clipboard.
 
     ![](./assets/install-images/install-step-3a.png)  
     *Open the source file on GitHub.*
@@ -23,3 +23,18 @@ The entire library is stored under the `src/` folder in the repo.
 
     ![](./assets/install-images/install-step-3b.png)  
     *Paste the code into your ModuleScript.*
+
+5. **Repeat the process** for the remaining ModuleScript by opening its matching source file on GitHub and pasting its code into Studio.
+
+### ❓ Confirmation
+To check if you have followed the steps correctly, add a Server Script, parent it under `ServerScriptService` and then paste this code into the script.
+```lua
+local hello_mpz = require(game.ReplicatedStorage.helloGMP.hello_mpz)
+
+local a = hello_mpz.fromString("437189043214321")
+local b = hello_mpz.fromString("43718904328195321")
+
+local result = a * b -- multiplication
+print(result) -- 19113425953622149599590952392041
+```
+
