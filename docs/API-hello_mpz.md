@@ -610,7 +610,7 @@ This benchmark demonstrates the practical upper bound of exponentiation in Luau 
 
 ## ⚒️ Performance Comparison
 
-helloGMP builds upon the excellent work of libraries like APInt (by [CrabGuy](https://github.com/CrabGuy/APInt)) in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
+helloGMP builds upon the excellent work of libraries like [APInt](https://github.com/CrabGuy/APInt) (by [CrabGuy](https://github.com/CrabGuy)) in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
 
 ### Head-to-Head Benchmark: helloGMP vs APInt
 
