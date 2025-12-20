@@ -273,7 +273,7 @@ making nth-root performance dominated by repeated big-integer exponentiation and
 
 To test the upper limits of `hello_mpz`, we evaluate the extreme exponential sequence:
 
-\[ 2^{\,2^x} \quad \text{for } x = 1 \dots 20 \]
+$$ 2^{\,2^x} \quad \text{for } x = 1 \dots 20 $$
 
 
 This sequence grows extraordinarily fast, each increment of `x` doubles the exponent size, causing the number of digits to explode. This is a stress test designed to reveal the maximum operand sizes that `hello_mpz` can handle within Luau's execution constraints.
