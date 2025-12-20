@@ -72,7 +72,9 @@ For clarity, the following complexity notation is used throughout:
     - `random(min, max)` → Produces a uniformly distributed random integer within the specified range using rejection sampling to avoid modulo bias, expected `O(m)` per accepted value
 
 ## Uses and Demonstrations of `hello_mpz`
+
 ### Construction and Representation
+
 ```lua
 local hello_mpz = require(path.to.hello_mpz) -- path to hello_mpz
 
@@ -105,9 +107,11 @@ print("c (scientific, 3 digits):", c:toScientific(3))
 print("c2 (scientific, 4 digits):", c2:toScientific(4))
 print("d (scientific, 20 digits):", d:toScientific(20))
 ```
+
 ### Arithmetic
+
 ```lua
-local hello_mpz = require(path.to.mpz)
+local hello_mpz = require(path.to.hello_mpz)
 
 -- also this is going to be timed
 local t = os.clock()
@@ -167,21 +171,68 @@ print("Power (d^c):", pow_result_2) -- 2807929681968365568
 local sqrt_result_1 = a:isqrt()
 local sqrt_result_2 = b:isqrt()
 
-print("Integer Square Root (a):", sqrt_result_1) -- 6659130024093683627949
-print("Integer Square Root (b):", sqrt_result_2) -- 9999999971608371637147316212893354162706836335977182681477
+print("Integer Square Root (a):", sqrt_result_1) -- 210647061152510344699426127270717
+print("Integer Square Root (b):", sqrt_result_2) -- 9999999971608371569167381468548474320793760390916298
 
 -- integer n roots (performance is definitely a lot worse here)
-local iroot_result_1 = a:iroot("3")
+local iroot_result_1 = a:iroot("3") -- accepts numbers or strings for convenience, you can use hello_mpz numbers as well.
 local iroot_result_2 = b:iroot("4")
 
-print("Integer Cube Root (a):", iroot_result_1) -- 35402744946636292
-print("Integer 4-Root (b):", iroot_result_2) -- 9999999985804185828449907921931344586
+print("Integer Cube Root (a):", iroot_result_1) -- 3540274494663629228482
+print("Integer 4-Root (b):", iroot_result_2) -- 99999999858041857745076336
 
 -- announce compute time
-print("took ".. tostring(os.clock()-t).. " seconds") -- usually take less than 0.08 seconds
+print("took ".. tostring(os.clock()-t).. " seconds") -- usually take less than 0.08 seconds on modern hardware
+```
+
+### Base Representations and Conversions
+
+```lua
+local hello_mpz = require(game.ReplicatedStorage.helloGMP.hello_mpz)
+
+-- Small, easy-to-read numbers for demonstration
+local small   = hello_mpz.new("42")
+local medium  = hello_mpz.new("12345678901234567890")
+local negative = hello_mpz.new("-987654321")
+
+print("Original numbers:")
+print("small:", small)          -- 42
+print("medium:", medium)        -- 12345678901234567890
+print("negative:", negative)    -- -987654321
+print()
+
+-- Built-in conversions
+print("Unary (base 1):", small:toUnary())                    -- 111111111111111111111111111111111111111111 (42 ones)
+print("Unary with custom symbol:", small:toUnary("|"))       -- |||||||||||||||||||||||||||||||||||||||||| (42 bars)
+
+print("Binary:", small:toBinary())                           -- 0b101010
+print("Hexadecimal:", small:toHex())                         -- 0x2A
+print("Octal:", small:toOctal())                             -- 0o52
+
+print("Base36:", medium:toBase36())                          -- 36#2LSOHXAWJUI8I
+print("Base62:", medium:toBase62())                          -- 62#EhzL6HwZ5ow
+
+print("Negative in hex:", negative:toHex())                  -- -0x3ADE68B1
+
+print()
+
+-- Parsing back with from* functions
+local from_hex = hello_mpz.fromHex("0x2A")
+print("fromHex('0x2A') == 42?", from_hex == small)           -- true
+
+local from_base62 = hello_mpz.fromBase62("62#EhzL6HwZ5ow")
+print("fromBase62 matches medium?", from_base62 == medium)   -- true
+
+-- Custom base example
+local custom_decimal = medium:toBase(10, "0123456789", "DEC#")
+print("Custom decimal:", custom_decimal)                     -- DEC#12345678901234567890
+
+local parsed = hello_mpz.fromBase("DEC#12345678901234567890", 10, "0123456789", "DEC#")
+print("Custom parse matches?", parsed == medium)             -- true
 ```
 
 ## 🔨 Performance Benchmarks
+
 All benchmarks conducted in Roblox Studio with fixed seed (123456) and averaged over 3 iterations.
 
 **Test data sizes:**
@@ -273,7 +324,7 @@ making nth-root performance dominated by repeated big-integer exponentiation and
 
 To test the upper limits of `hello_mpz`, we evaluate the extreme exponential sequence:
 
-$$ 2^{\,2^x} \quad \text{for } x = 1 \dots 20 $$
+$$ 2^{\2^x} \quad \text{for } x = 1 \dots 20 $$
 
 
 This sequence grows extraordinarily fast, each increment of `x` doubles the exponent size, causing the number of digits to explode. This is a stress test designed to reveal the maximum operand sizes that `hello_mpz` can handle within Luau's execution constraints.
