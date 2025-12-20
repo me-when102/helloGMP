@@ -160,7 +160,7 @@ function hello_mpz.fromString(s)
 
 	-- strict validation: only digits allowed
 	assert(s:match("^%d+$") or setting_mode ~= "strict", "Invalid string: contains non-digit characters ("..s..")")
-	
+
 	local limbs = {}
 	local p = #s
 	while p > 0 do
@@ -246,7 +246,7 @@ end
 function hello_mpz:toScientific(precision)
 	precision = precision or 15 -- digits in mantissa
 	assert(precision > 0, "Precision must be 1 or greater, got: ".. precision)
-	
+
 	if self.sign == 0 then return "0" end
 
 	local str = self:toString()
@@ -335,12 +335,12 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	if self:isZero() then
 		return alphabet:sub(1,1)
 	end
-	
+
 	local isNegative = self.sign < 0
-	
+
 	-- Unary/base-1 case (streaming in limb chunks)
 	if base == 1 then
-		
+
 		self = self:abs()
 
 		local symbol = alphabet:sub(1,1)
@@ -370,9 +370,9 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	end
 
 	-- Normal base >= 2
-	
+
 	self = self:abs()
-	
+
 	local baseHGMP = hello_mpz.fromNumber(base)
 	local result = {}
 
@@ -392,51 +392,155 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	return str
 end
 
+-- Reverses the order of elements in a table in-place for MSB/LSB conversion.
+function reverseArray(t)
+	local i, j = 1, #t
+	while i < j do
+		t[i], t[j] = t[j], t[i]
+		i = i + 1
+		j = j - 1
+	end
+end
+
+-- Calculates the maximum number of digits (k) that can be combined into a single 53-bit Lua float.
+function chooseChunkSize(base)
+	-- Fit base^k into a 53-bit Lua number
+	local limit = 2^53
+	local k = 1
+	local v = base
+
+	while v * base < limit do
+		v = v * base
+		k = k + 1
+	end
+
+	return k
+end
+
+-- Generates a dictionary of big integers representing (base^k)^n for binary-split reassembly.
+function precomputePowers(basePowK, maxChunks)
+	local pow = {}
+	pow[1] = basePowK
+
+	-- Build powers: 2, 4, 8, 16...
+	local i = 1
+	while (2^i) <= maxChunks do
+		pow[2^i] = pow[2^(i-1)] * pow[2^(i-1)]
+		i = i + 1
+	end
+
+	-- Build all powers up to maxChunks using binary decomposition
+	for n = 2, maxChunks do
+		if not pow[n] then
+			-- Decompose n into highest power of two + remainder
+			local p = highestPowerOfTwo(n)
+			pow[n] = pow[p] * pow[n - p]
+		end
+	end
+
+	return pow
+end
+
+-- Finds the largest power of two less than or equal to n for bitwise-style decomposition.
+function highestPowerOfTwo(n)
+	local p = 1
+	while p * 2 <= n do p = p * 2 end
+	return p
+end
+
 -- Parses a string in the given base and alphabet into a hello_mpz number.
+-- Uses binary-split combinations
 function hello_mpz.fromBase(str, base, alphabet, prefix)
 	assert(type(str) == "string", "Input must be a string")
 	assert(type(base) == "number" and base >= 1, "Base must be at least 1")
-	assert(type(alphabet) == "string", "Alphabet must be a string, got "..type(alphabet))
-	assert(#alphabet >= base, "Alphabet must have at least ".. base .." unique symbols")
+	assert(type(alphabet) == "string", "Alphabet must be a string")
+	assert(#alphabet >= base, "Alphabet must have at least "..base.." symbols")
 
-	-- handle empty string case
+	-- Handle empty string
 	if str == "" then
 		return ZERO
 	end
 
+	-- Handle sign
 	local isNegative = str:sub(1,1) == "-"
 	if isNegative then
 		str = str:sub(2)
 	end
 
-	if prefix and str:sub(1, #prefix) == prefix then
-		str = str:sub(#prefix + 1)
+	-- Handle prefix
+	if prefix and str:sub(1,#prefix) == prefix then
+		str = str:sub(#prefix+1)
 	end
-	-- Unary/base-1 case
+
+	-- Base-1 unary case (degenerate but important)
 	if base == 1 then
-		local count = #str
-		local result = hello_mpz.fromNumber(count)
+		local result = hello_mpz.fromNumber(#str)
 		if isNegative then result.sign = -1 end
 		return result
 	end
 
-	-- Normal base >= 2
+	-- Build char -> value map
 	local charToValue = {}
 	for i = 1, base do
-		local c = alphabet:sub(i,i)
-		charToValue[c] = i - 1
+		charToValue[alphabet:sub(i,i)] = i - 1
 	end
 
-	local result = ZERO:clone()
-	local baseHGMP = hello_mpz.fromNumber(base)
+	-- Choose chunk size k such that base^k fits in a Lua number or small mpz
+	local k = chooseChunkSize(base)
 
-	for i = 1, #str do
-		local c = str:sub(i,i)
-		local val = charToValue[c]
-		assert(val ~= nil, "Invalid character in input string: "..c)
-		result = result * baseHGMP + hello_mpz.fromNumber(val)
+	-- Precompute base^k as hello_mpz
+	local basePowK = hello_mpz.fromNumber(base ^ k)
+
+	-- Convert string -> array of chunk integers
+	local chunks = {}
+	local len = #str
+	local i = len
+
+	while i > 0 do
+		local start = math_max(1, i - k + 1)
+		local chunkStr = str:sub(start, i)
+
+		-- Convert chunkStr to integer
+		local val = 0
+		for j = 1, #chunkStr do
+			local c = chunkStr:sub(j,j)
+			local digit = charToValue[c]
+			assert(digit, "Invalid character: "..c)
+			val = val * base + digit
+		end
+
+		table_insert(chunks, val)
+		i = start - 1
 	end
 
+	-- chunks are reversed (least significant first)
+	-- Reverse to make them MSB -> LSB
+	reverseArray(chunks)
+
+	-- Precompute powers of basePowK: (base^k)^(1), (base^k)^(2), (base^k)^(4)...
+	local powCache = precomputePowers(basePowK, #chunks)
+
+	-- Binary-split recursive converter
+	local function convertRange(L, R)
+		if L == R then
+			return hello_mpz.fromNumber(chunks[L])
+		end
+
+		local mid = math_floor((L + R) / 2)
+
+		local left  = convertRange(L, mid)
+		local right = convertRange(mid+1, R)
+
+		-- Number of chunks on the right
+		local rightCount = R - mid
+
+		-- Multiply left by (base^k)^(rightCount)
+		local scale = powCache[rightCount]
+		return left * scale + right
+	end
+
+	-- Final assembly
+	local result = convertRange(1, #chunks)
 	if isNegative then result.sign = -1 end
 	return result
 end
@@ -821,11 +925,11 @@ end
 function hello_mpz.__add(a, b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	-- shortcut: if a == 0 or b == 0 then yes
 	if a.sign == 0 then return make(b.sign, b.limbs) end
 	if b.sign == 0 then return make(a.sign, a.limbs) end
-	
+
 	-- addition
 	if a.sign == b.sign then
 		local limbs = addAbsLimbs(a.limbs, b.limbs)
@@ -853,7 +957,7 @@ end
 function hello_mpz.__sub(a, b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	-- simply negate b.
 	return hello_mpz.__add(a, b:neg())
 end
@@ -1070,12 +1174,12 @@ end
 function hello_mpz.__mul(a, b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	-- zero
 	if a.sign == 0 or b.sign == 0 then
 		return ZERO
 	end
-	
+
 	-- fast path: powers of 10 without toString
 	if isPow10Limbs(a) then
 		return mulByPow10_inplace(b:clone(), pow10_k_from_limbs(a)) -- return b * 10^k
@@ -1175,7 +1279,7 @@ local function knuthLimbs(A, B)
 		if carry > 0 then R[#R + 1] = carry end
 		return R
 	end
-	
+
 	-- Undo normalization on remainder slice
 	local function unnormalize_slice(U, d, n)
 		local R = {}
@@ -1213,7 +1317,7 @@ local function knuthLimbs(A, B)
 	local vn1 = V[n - 1]
 
 	for j = m, 0, -1 do
-		
+
 		-- D3: Estimate quotient digit q^
 		local ujn  = U[j + n + 1]
 		local ujn1 = U[j + n]
@@ -1224,7 +1328,7 @@ local function knuthLimbs(A, B)
 		local rhat = num - qhat * vn
 
 		if qhat > BASE - 1 then qhat = BASE - 1 end
-		
+
 		-- Correct q^ if overestimated
 		while qhat * vn1 > rhat * BASE + ujn2 do
 			qhat = qhat - 1
@@ -1320,7 +1424,7 @@ end
 function hello_mpz.__div(a,b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	local q,_ = hello_mpz.divmod(a,b)
 	return q
 end
@@ -1329,7 +1433,7 @@ end
 function hello_mpz.__idiv(a,b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	local q,_ = hello_mpz.divmod(a,b)
 	return q
 end
@@ -1338,7 +1442,7 @@ end
 function hello_mpz.__mod(a,b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	local _,r = hello_mpz.divmod(a,b)
 	return r
 end
@@ -1403,7 +1507,7 @@ end
 hello_mpz.__pow = function(a,b)
 	require_mpz(a, "Left operand")
 	require_mpz(b, "Right operand")
-	
+
 	return a:pow(b)
 end
 
@@ -1433,7 +1537,7 @@ local function isqrt_binary(N)
 			high = mid - ONE
 		end
 	end
-	
+
 	return high -- floor(sqrt(self))
 end
 
@@ -1492,7 +1596,7 @@ end
 
 -- newton iroot function
 local function iroot_newton(N, i)
-	
+
 	if N.sign == 0 then
 		return ZERO
 	end
@@ -1542,12 +1646,12 @@ function hello_mpz:iroot(i)
 	i = to_mpz(i)
 	assert(i.sign > 0, "Root must be positive")  -- i is HGMP
 	assert(self.sign >= 0, "Root of negative number not supported")
-	
+
 	-- shortcut: i = 2 -> square root
 	if i == TWO then
 		return self:isqrt()
 	end
-	
+
 	local limbCount = #self.limbs
 
 	if limbCount < IROOT_NEWTON_CUTOFF then
