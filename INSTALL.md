@@ -98,11 +98,4 @@ The table below shows common mappings. Not all files are listed.
 - Folder and ModuleScript names are case-sensitive.
 - The internal structure must match the repository exactly.
 - Do not rename files unless you also update `require` paths.
-- All modules should be parented under the same `helloGMP` root folder.
-
-### ✅ Complete Import Verification
-After completing the full import, you should be able to require any helloGMP module without errors.
-Create a Server Script if you don't have one and parent it under `ServerScriptService`, and then paste the code into the script.
-```lua
-local a = "WIP"
-```
+- All modules should be parented under the same `helloGMP` root folder and extension modules under the `extension` folder.

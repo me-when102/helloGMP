@@ -1,4 +1,6 @@
--- TODO: create the floating-point function
+-- TODO: create the floating-point system
+-- WIP
+
 local module = {}
 
 return module
