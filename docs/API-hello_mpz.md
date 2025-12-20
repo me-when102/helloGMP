@@ -269,6 +269,40 @@ making nth-root performance dominated by repeated big-integer exponentiation and
 | 1 to 1,000 | 0.000758s |
 | 1 to 10,000 | 0.007910s |
 
+## ⚒️ Benchmark for Computation Capability
+
+To test the upper limits of `hello_mpz`, we evaluate the extreme exponential sequence:
+
+\[ 2^{\,2^x} \quad \text{for } x = 1 \dots 20 \]
+
+
+This sequence grows extraordinarily fast, each increment of `x` doubles the exponent size, causing the number of digits to explode. This is a stress test designed to reveal the maximum operand sizes that `hello_mpz` can handle within Luau's execution constraints.
+
+### Results
+
+| x | Approximate Value | Decimal Digits | Time |
+|---|-------------------|----------------|------|
+| 10 | 1.79769313486231 × 10^308 | 308 | 0.0009s |
+| 12 | 1.04438888141315 × 10^1233 | 1233 | 0.0026s |
+| 13 | 1.09074813561941 × 10^2466 | 2466 | 0.0064s |
+| 14 | 1.18973149535723 × 10^4932 | 4932 | 0.0148s |
+| 15 | 1.41546103104495 × 10^9864 | 9864 | 0.0408s |
+| 16 | 2.00352993040684 × 10^19728 | 19,728 | 0.1202s |
+| 17 | 4.01413218203606 × 10^39456 | 39,456 | 0.3623s |
+| 18 | 1.61132571748576 × 10^78913 | 78,913 | 1.1055s |
+| 19 | 2.59637056783100 × 10^157826 | 157,826 | 3.3927s |
+| 20 | — | ~315,000 | **Timeout** |
+
+### Observations
+
+- `hello_mpz` successfully computes **2^2^19**, a number with roughly **158k decimal digits**, in about **3.4 seconds**.
+- **2^2^20** exceeds Luau’s execution time limit due to the sheer size of the operands (over 300k digits, ~1 million bits).
+- Division by 2 (`2^2^x / 2`) is trivial and completes instantly, as it is effectively a right‑shift.
+- The growth curve matches the expected scaling of binary exponentiation combined with Karatsuba multiplication: extremely fast for small `x`, then sharply increasing as operand sizes dominate.
+
+This benchmark demonstrates the practical upper bound of exponentiation in Luau and highlights the robustness of `hello_mpz` when handling extremely large integers.
+
+
 ## ⚒️ Performance Comparison
 
 helloGMP builds upon the excellent work of libraries like APInt and BigNum in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
@@ -317,7 +351,7 @@ Performance testing conducted in Roblox Studio with fixed seed (123456), average
 | Number Size | helloGMP | APInt | Notes |
 |-------------|----------|-------|-------|
 | Small (5 digits) | 0.000285s | 0.000146s | APInt **2.0× faster** |
-| Large (20 digits) | 0.000394s | 0.000330s | helloGMP **1.2× faster** |
+| Large (20 digits) | 0.000394s | 0.000330s | APInt **1.2× faster** |
 
 > **Constructor tradeoff:** APInt has lower overhead for small number construction, while helloGMP's asymptotically efficient algorithm becomes faster as numbers grow larger. 
 
@@ -337,3 +371,25 @@ Performance testing conducted in Roblox Studio with fixed seed (123456), average
 ---
 
 *Full benchmark scripts available in the `/benchmarks` directory for independent verification.*
+
+## Algorithm Engineering Philosophy
+- **Why Schoolbook -> Comba -> Karatsuba for Multiplication?**
+    - I see this as the most practical and empirically optimal algorithm ladder suiting for Luau.
+    - Schoolbook is used for very small integers because its low constant factors and zero overhead make it faster than any asymptotically superior method, though it scales poorly as limb counts grow.
+    - Comba refines schoolbook by tightening inner‑loop operations and improving locality, giving a clear win for mid‑sized values at the cost of more complex implementation.
+    - Karatsuba activates only for large operands where its `O(n^1.585)` behaviour outweighs recursion overhead, trading simplicity for significantly better scaling.
+    - I actually tried to implement Toom-3, however the implementation is difficult in correctness and the overhead completely erased the theoretical asymptotic benefits in Luau.
+    - Fast Fourier Transform (FFT) multiplication has excellent asymptotic asymptotic complexity of `O(n log n)`, but the implementation is extremely complex, and Luau does not guarantee float-point precision meaning results can drift.
+    - The Number Theoretic Transform (NTT) is an alternative to FFT that avoids floating-point issues, but its modulus constraints and limited coverage make it impractical for general-purpose big-integer arithmetic in Luau.
+- **Why Only Use Knuth D for Division?**
+    - Typical fast schoolbook long division variants in theory should achieve `O(n^2)` asymptotic complexity. In Luau, their many small, unbalanced partial divisions create a large number of temporary big integers, making them significantly slower than the theory suggests.
+    - Knuth D Division performs and scales far better than "fast long division" variants despite sharing the same `O(n^2)` asymptotic complexity. The implementation was difficult but the payoff is substantial, especially because division is a core operator that must be both correct and consistently fast.
+    - Burnikel-Ziegler Division has better asymptotic complexity than Knuth D Division in theory, but with implementation and tests, it is simply not possible to get it correct while fast, therefore scrapped.
+    - Newton Division is an alternative to Burnikel-Ziegler that uses Newton iteration to approximate reciprocals, but it requires extremely fast multiplication to be worthwhile. In Luau, the cost of repeated large multiplications and the precision requirements of reciprocal approximation make Newton Division slower and less reliable than Knuth D for the operand sizes `hello_mpz` targets.
+- **Why Use Binary Splitting for Factorials?**
+    - The naive approach to computing `n!` performs `n` sequential multiplications, which is simple but scales poorly, especially because each multiplication grows in size as the result grows. In Luau, this leads to a large number of big-integer allocations and quickly becomes the dominant cost.
+    - Binary splitting reduces the number of multiplications dramatically by recursively splitting the range into balanced subproducts. This produces a multiplication tree with logarithmic depth, which pairs extremely well with Karatsuba and avoids the linear chain of ever-growing intermediates.
+- **Why Binary Search and Newton Iteration for Roots?**
+    - Binary search is extremely reliable for small integers: it over overshoots, it requires only comparisons and multiplications, and it avoids the overhead of division. For small limb counts, this simplicity makes it faster than Newton's method despite its linear covergence.
+    - Newton iteration becomes dramatically faster for large integers because it converges quadratically, each iteration roughly doubles the number of correct digits. Even though each step is expensive (requiring big-integer multiplication and division), the number of steps is small, making it the best choice for large operands.
+    - This hybrid approach is used for both integer square roots and integer n-roots purely for performance reasons. Newton's method for n-roots has significantly more overhead than for square roots due to repeated big-integer exponentiation and division, but given Luau's constraints, it remains the most practical option available.
