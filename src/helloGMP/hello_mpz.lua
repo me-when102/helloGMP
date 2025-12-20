@@ -60,9 +60,12 @@ local ipairs = ipairs
 
 local rawequal = rawequal
 
+local MPZ_MT = getmetatable(setmetatable({}, hello_mpz))
+
 ----------------------------------------------------
 -- Main Constructor System
 ----------------------------------------------------
+
 -- Create a new bigint from sign, limbs (little-endian table)
 local function make(sign, limbs)
 	local t = setmetatable({}, hello_mpz)
@@ -123,24 +126,17 @@ local function normalize_limbs(limbs)
 	end
 end
 
--- normalizes parameters for certain functions to accept both string and hello_mpz number
-local function normalize_parameters(...)
-	local parameters = {...}
-	for i, parameter in ipairs(parameters) do
-		if getmetatable(parameter) ~= hello_mpz then
-			-- convert strings (or other types) into hello_mpz
-			-- accepts both number and string
-			parameters[i] = hello_mpz.new(parameter)
-		end
+local function to_mpz(v)
+	if getmetatable(v) == MPZ_MT then
+		return v
 	end
-	return table_unpack(parameters)
+	return hello_mpz.new(v)
 end
 
--- shared helper of checking the parameter if it is a hello_mpz type
-local function checkhello_mpzType(k, n)
-	assert(getmetatable(k) == hello_mpz or type(k) == "string", 
-		n.." must be a hello_mpz number or string. Got "..type(k)
-	)
+local function require_mpz(v, name)
+	if getmetatable(v) ~= MPZ_MT then
+		error(name .. " must be a hello_mpz instance. Use hello_mpz.new(value) to convert.", 3)
+	end
 end
 
 -- Constructs the hello_mpz number with optional leading + or - from the given string.
@@ -164,7 +160,7 @@ function hello_mpz.fromString(s)
 
 	-- strict validation: only digits allowed
 	assert(s:match("^%d+$") or setting_mode ~= "strict", "Invalid string: contains non-digit characters ("..s..")")
-
+	
 	local limbs = {}
 	local p = #s
 	while p > 0 do
@@ -172,7 +168,7 @@ function hello_mpz.fromString(s)
 		local chunk = tonumber(s:sub(starti, p))
 
 		-- assert chunk (should never fail if validation passed)
-		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."-"..p)
+		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."�"..p)
 
 		table_insert(limbs, chunk)
 		p = starti - 1
@@ -250,7 +246,7 @@ end
 function hello_mpz:toScientific(precision)
 	precision = precision or 15 -- digits in mantissa
 	assert(precision > 0, "Precision must be 1 or greater, got: ".. precision)
-
+	
 	if self.sign == 0 then return "0" end
 
 	local str = self:toString()
@@ -339,12 +335,12 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	if self:isZero() then
 		return alphabet:sub(1,1)
 	end
-
+	
 	local isNegative = self.sign < 0
-
+	
 	-- Unary/base-1 case (streaming in limb chunks)
 	if base == 1 then
-
+		
 		self = self:abs()
 
 		local symbol = alphabet:sub(1,1)
@@ -374,9 +370,9 @@ function hello_mpz:toBase(base, alphabet, prefix)
 	end
 
 	-- Normal base >= 2
-
+	
 	self = self:abs()
-
+	
 	local baseHGMP = hello_mpz.fromNumber(base)
 	local result = {}
 
@@ -823,11 +819,13 @@ end
 
 -- Adds a (hello_mpz number) and b (hello_mpz number).
 function hello_mpz.__add(a, b)
-
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	-- shortcut: if a == 0 or b == 0 then yes
 	if a.sign == 0 then return make(b.sign, b.limbs) end
 	if b.sign == 0 then return make(a.sign, a.limbs) end
-
+	
 	-- addition
 	if a.sign == b.sign then
 		local limbs = addAbsLimbs(a.limbs, b.limbs)
@@ -853,6 +851,9 @@ end
 
 -- Subtracts a (HGMP number) and b (HGMP number).
 function hello_mpz.__sub(a, b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	-- simply negate b.
 	return hello_mpz.__add(a, b:neg())
 end
@@ -1067,11 +1068,14 @@ end
 -- Multiplies two hello_mpz numbers.
 -- Uses Schoolbook -> Comba -> Karatsuba when neccessary.
 function hello_mpz.__mul(a, b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	-- zero
 	if a.sign == 0 or b.sign == 0 then
 		return ZERO
 	end
-
+	
 	-- fast path: powers of 10 without toString
 	if isPow10Limbs(a) then
 		return mulByPow10_inplace(b:clone(), pow10_k_from_limbs(a)) -- return b * 10^k
@@ -1171,7 +1175,7 @@ local function knuthLimbs(A, B)
 		if carry > 0 then R[#R + 1] = carry end
 		return R
 	end
-
+	
 	-- Undo normalization on remainder slice
 	local function unnormalize_slice(U, d, n)
 		local R = {}
@@ -1201,7 +1205,7 @@ local function knuthLimbs(A, B)
 
 	m = #U - n - 1
 
-	-- D2-D7: Main division loop
+	-- D2�D7: Main division loop
 	local Q = {}
 	for i = 1, m + 1 do Q[i] = 0 end
 
@@ -1209,7 +1213,7 @@ local function knuthLimbs(A, B)
 	local vn1 = V[n - 1]
 
 	for j = m, 0, -1 do
-
+		
 		-- D3: Estimate quotient digit q^
 		local ujn  = U[j + n + 1]
 		local ujn1 = U[j + n]
@@ -1220,7 +1224,7 @@ local function knuthLimbs(A, B)
 		local rhat = num - qhat * vn
 
 		if qhat > BASE - 1 then qhat = BASE - 1 end
-
+		
 		-- Correct q^ if overestimated
 		while qhat * vn1 > rhat * BASE + ujn2 do
 			qhat = qhat - 1
@@ -1314,18 +1318,27 @@ end
 
 -- Divides two hello_mpz numbers.
 function hello_mpz.__div(a,b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	local q,_ = hello_mpz.divmod(a,b)
 	return q
 end
 
 -- Integer divides two hello_mpz numbers (hello_mpz is strictly integer, no difference).
 function hello_mpz.__idiv(a,b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	local q,_ = hello_mpz.divmod(a,b)
 	return q
 end
 
 -- Returns the result of a hello_mpz number modulated by b (hello_mpz number).
 function hello_mpz.__mod(a,b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	local _,r = hello_mpz.divmod(a,b)
 	return r
 end
@@ -1355,8 +1368,7 @@ end
 
 -- Returns the result of the hello_mpz number powered by another hello_mpz number.
 function hello_mpz:pow(hgExp)
-	hgExp = normalize_parameters(hgExp)
-	checkhello_mpzType(hgExp, "Power Indice")
+	hgExp = to_mpz(hgExp)
 
 	assert(hgExp.sign >= 0, "Exponent must be non-negative")
 
@@ -1389,6 +1401,9 @@ end
 
 -- Returns the result of the hello_mpz number powered by another hello_mpz number.
 hello_mpz.__pow = function(a,b)
+	require_mpz(a, "Left operand")
+	require_mpz(b, "Right operand")
+	
 	return a:pow(b)
 end
 
@@ -1418,7 +1433,7 @@ local function isqrt_binary(N)
 			high = mid - ONE
 		end
 	end
-
+	
 	return high -- floor(sqrt(self))
 end
 
@@ -1477,7 +1492,7 @@ end
 
 -- newton iroot function
 local function iroot_newton(N, i)
-
+	
 	if N.sign == 0 then
 		return ZERO
 	end
@@ -1524,16 +1539,15 @@ end
 
 -- Returns the result of the hello_mpz number rooted by i (hello_mpz number).
 function hello_mpz:iroot(i)
-	i = normalize_parameters(i)
-	checkhello_mpzType(i, "Indice")
+	i = to_mpz(i)
 	assert(i.sign > 0, "Root must be positive")  -- i is HGMP
 	assert(self.sign >= 0, "Root of negative number not supported")
-
+	
 	-- shortcut: i = 2 -> square root
 	if i == TWO then
 		return self:isqrt()
 	end
-
+	
 	local limbCount = #self.limbs
 
 	if limbCount < IROOT_NEWTON_CUTOFF then
@@ -1590,7 +1604,7 @@ end
 -- Finds the Greatest Common Divisor of the hello_mpz number and other (hello_mpz number).
 -- Uses binary GCD algorithm.
 function hello_mpz.GCD(a, b)
-	local a, b = normalize_parameters(a, b)
+	local a, b = to_mpz(a), to_mpz(b)
 	a, b = a:abs(), b:abs()
 
 	if a:isZero() then return b end
@@ -1620,7 +1634,7 @@ end
 
 -- Finds the Lowest Common Multiple of the hello_mpz number and other (hello_mpz number).
 function hello_mpz.LCM(a, b)
-	a, b = normalize_parameters(a, b)
+	a, b = to_mpz(a), to_mpz(b)
 
 	if a:isZero() or b:isZero() then
 		return ZERO
@@ -1640,7 +1654,7 @@ end
 
 -- Returns the result of the combination of n and r. (both hello_mpz numbers or string)
 function hello_mpz.comb(n, r)
-	n, r = normalize_parameters(n, r)
+	n, r = to_mpz(n), to_mpz(r)
 
 	-- r < 0 or r > n -> 0
 	if r < ZERO or r > n then
@@ -1669,7 +1683,7 @@ end
 
 -- Returns the result of the permutation of n and r. (both hello_mpz numbers or string)
 function hello_mpz.perm(n, r)
-	n, r = normalize_parameters(n, r)
+	n, r = to_mpz(n), to_mpz(r)
 
 	-- invalid cases
 	if r < ONE or r > n then
@@ -1689,9 +1703,7 @@ end
 
 -- Generates a random integer between the min - max range.
 function hello_mpz.random(min, max)
-	min, max = normalize_parameters(min, max)
-	checkhello_mpzType(min, "min")
-	checkhello_mpzType(max, "max")
+	min, max = to_mpz(min), to_mpz(max)
 	assert(max >= min, "Max must be >= min")
 
 	if min == max then
@@ -1793,8 +1805,7 @@ end
 -- Returns n!_k (multi-factorial) with step k as a hello_mpz number.
 function hello_mpz:multiFactorial(step)
 	step = step or ONE:clone()  -- default step
-	step = normalize_parameters(step)
-	checkhello_mpzType(step, "Step")
+	step = to_mpz(step)
 
 	-- clone self to avoid modifying original
 	local result = self:clone()
@@ -1818,16 +1829,14 @@ end
 -- Iterator handler for all for loop functions.
 local function makeIterator(a, b, step, exclusive)
 	-- Normalize b
-	a, b = normalize_parameters(a, b)
+	a, b = to_mpz(a), to_mpz(b)
 
 	-- Normalize and type check positive step
 	if step == nil then
 		step = ONE:clone()
-	elseif type(step) == "string" then
-		step = hello_mpz.fromString(step)
+	else
+		step = to_mpz(step)
 	end
-
-	checkhello_mpzType(step, "Step")
 
 	assert(step > ZERO, "Step must be positive")
 
@@ -1861,14 +1870,13 @@ end
 -- Normalizes b and step for iteration
 local function normalizeRangeParams(a, b, step, callerName)
 	-- Normalize a and b
-	a, b = normalize_parameters(a, b)
+	a, b = to_mpz(a), to_mpz(b)
 
 	-- Normalize step (must become hello_mpz)
 	if step == nil then
 		step = ONE:clone()
 	else
-		step = normalize_parameters(step)
-		checkhello_mpzType(step, "Step")
+		step = to_mpz(step)
 	end
 
 	-- Validate step
