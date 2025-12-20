@@ -39,3 +39,9 @@ The **helloGMP** library is planned to have three main modules that specializes 
 - ✅ `hello_mpz` (integer arithmetic) is stable and benchmarked
 - ⚠️ `hello_mpq` (rational arithmetic) is planned but not yet implemented
 - ⚠️ `hello_mpf` (floating-point arithmetic) is experimental and subject to change
+
+## The **HelloGMP** Base System
+**HelloGMP** actually chooses the default limb base of **10^7** which may be the sweet spot for arbitrary precision arithmetic.
+- Luau numbers are double-precision floats. By using base 10^7, we ensure that even when multiplying two "limbs" (10^7 × 10^7 = 10^14), the result stays safely under the 2^53 (approx. 9 × 10^15) limit where precision loss begins.
+- Using a decimal base makes `toString()` operation in `hello_mpz` asymptotically faster (`O(n)`). This is critical for Roblox UI elements like `TextLabels` that need to update frequently.
+- This specific base is large enough to keep the number of limbs (and thus loop iterations) low, but small enough to avoid the overhead of Luau's large-integer handling.
