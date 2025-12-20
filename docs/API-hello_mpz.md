@@ -185,6 +185,163 @@ print("Integer 4-Root (b):", iroot_result_2) -- 99999999858041857745076336
 print("took ".. tostring(os.clock()-t).. " seconds") -- usually take less than 0.08 seconds on modern hardware
 ```
 
+### Comparisons
+
+```lua
+local hello_mpz = require(path.to.hello_mpz)
+
+-- Large positive numbers (differ by 1 at the end)
+local a = hello_mpz.new("437218904321789054327189043217890432178590321743890215321")
+local b = hello_mpz.new("437218904321789054327189043217890432178590321743890215322")
+
+-- Medium positive number
+local c = hello_mpz.new("77777777777777774325432")
+
+-- Negative number
+local d = hello_mpz.new("-43214231")
+
+-- Zero for completeness
+local z = hello_mpz.new("0")
+
+print("=== Equality (==) ===")
+print("a == b:", a == b)         -- false (differ by 1)
+print("a == a:", a == a)         -- true
+print("c == c:", c == c)         -- true
+print("d == d:", d == d)         -- true
+print("z == z:", z == z)         -- true
+print("a == c:", a == c)         -- false
+
+print("\n=== Greater Than (>) ===")
+print("a > b:", a > b)           -- false (a is smaller)
+print("b > a:", b > a)           -- true
+print("c > a:", c > a)           -- false (c is much smaller)
+print("a > c:", a > c)           -- true
+print("d > z:", d > z)           -- false (negative < zero)
+print("z > d:", z > d)           -- true
+
+print("\n=== Less Than (<) ===")
+print("a < b:", a < b)           -- true
+print("b < a:", b < a)           -- false
+print("c < a:", c < a)           -- true
+print("a < c:", a < c)           -- false
+print("d < z:", d < z)           -- true
+print("z < d:", z < d)           -- false
+
+print("\n=== Greater Than or Equal (>=) ===")
+print("a >= a:", a >= a)         -- true
+print("b >= a:", b >= a)         -- true
+print("a >= b:", a >= b)         -- false
+print("d >= z:", d >= z)         -- false
+print("z >= d:", z >= d)         -- true
+
+print("\n=== Less Than or Equal (<=) ===")
+print("a <= a:", a <= a)         -- true
+print("a <= b:", a <= b)         -- true
+print("b <= a:", b <= a)         -- false
+print("d <= z:", d <= z)         -- true
+print("z <= d:", z <= d)         -- false
+
+print("\n=== Mixed Sign Comparisons ===")
+local pos = hello_mpz.new("100")
+local neg = hello_mpz.new("-100")
+
+print("pos > neg:", pos > neg)   -- true
+print("neg > pos:", neg > pos)   -- false
+print("pos < neg:", pos < neg)   -- false
+print("neg < pos:", neg < pos)   -- true
+print("pos == neg:", pos == neg) -- false
+print("pos >= neg:", pos >= neg) -- true
+print("neg <= pos:", neg <= pos) -- true
+
+print("\n=== Zero Comparisons ===")
+print("z > z:", z > z)           -- false
+print("z < z:", z < z)           -- false
+print("z >= z:", z >= z)         -- true
+print("z <= z:", z <= z)         -- true
+print("z == z:", z == z)         -- true
+```
+
+### Utilities
+
+```lua
+
+local hello_mpz = require(path.to.hello_mpz)
+
+local num = hello_mpz.new("-1234567890")
+
+-- checks if number is even (constant time)
+print(":isEven()", num:isEven())       -- true
+
+-- checks if number is odd (constant time)
+print(":isOdd()", num:isOdd())        -- false
+
+-- absolute value of self
+print(":abs()", num:abs())          -- 1234567890
+
+-- negate value of self
+print(":neg()", num:neg())          -- 1234567890 (or use -num)
+
+-- checks if number is zero (constant time)
+print(":isZero()", num:isZero())       -- false
+
+-- checks if number is positive (constant time)
+print(":isPositive()", num:isPositive())   -- false
+
+-- checks if number is negative (constant time)
+print(":isNegative()", num:isNegative())   -- true
+
+local copy = num:clone()
+print(":clone()" copy == num)        -- true (different object)
+
+```
+
+### Number Theory Functions
+
+```lua
+local hello_mpz = require(path.to.hello_mpz)
+
+local a = hello_mpz.fromString("12345678901234567890")
+local b = hello_mpz.fromString("98765432109876543210")
+
+local lcm_result = hello_mpz.LCM(a, b) -- Least Common Multiple
+local gcd_result = hello_mpz.GCD(a, b) -- Greatest Common Divisor
+
+print("LCM(a, b):", lcm_result) -- 1354807012498094801236261410
+print("GCD(a, b):", gcd_result) -- 900000000090
+```
+
+### Probability Functions
+
+```lua
+local hello_mpz = require(game.ReplicatedStorage.helloGMP.hello_mpz)
+
+-- making this timed
+local t = os.clock()
+
+local a = hello_mpz.fromString("100000")
+local b = hello_mpz.fromString("500")
+
+local comb_result = hello_mpz.comb(a, b)
+local perm_result = hello_mpz.perm(a, b)
+
+-- okay man these are huge integers though.
+print("comb(100000, 500):", comb_result)
+print("perm(100000, 500):", perm_result)
+
+-- random integers
+local min = hello_mpz.fromString("100000000000000000000")
+local max = hello_mpz.fromString("999999999999999999999")
+
+-- three random samples
+local random_1 = hello_mpz.random(min, max)
+local random_2 = hello_mpz.random(min, max)
+local random_3 = hello_mpz.random(min, max)
+
+print("3 random integers:", random_1, random_2, random_3)
+
+print("took ".. tostring(os.clock() - t) .. " seconds") -- should take less than 0.05 seconds on modern hardware
+```
+
 ### Base Representations and Conversions
 
 ```lua
