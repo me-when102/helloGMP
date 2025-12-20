@@ -7,7 +7,7 @@ Welcome to **helloGMP**, a modular, high-performance library designed for Roblox
 
 _Note: The library name is `helloGMP`. In documentation, you may see "HelloGMP" at the start of sentences, this is just grammatical capitalization._
 
- - **INSTALLATION**: To get started, [install **helloGMP** here](./INSTALL.md).
+ - **INSTALLATION**: To get `helloGMP` into your Roblox Studio project, [install **helloGMP** here](./INSTALL.md).
 
 ## Why **helloGMP**?
 **HelloGMP** exists to bring the power of arbitrary‑precision mathematics into Roblox Studio and Luau. It is designed to balance performance, correctness, and usability, providing exact arithmetic where native numeric types are insufficient. Whether you’re building games, simulations, or experimenting with number theory, helloGMP provides a reliable foundation.

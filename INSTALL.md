@@ -1,14 +1,17 @@
 # Getting Started: Getting helloGMP into Roblox Studio/Luau
-**HelloGMP** is distributed as source code and is not directly importable into Roblox Studio.
+**helloGMP** can be installed either by using the pre-packaged model file (recommended) or by manually mirroring the source directory for specialized workflows.
 
-To use helloGMP, you must manually recreate the library's `src/` directory structure inside your Roblox project and copy the corresponding source files into ModuleScripts. This includes all submodules, extensions,and optional components present in the repository.
-
-
-> **Rule:** The folder and ModuleScript structure inside Roblox Studio
-> must exactly match the structure of the `src/` directory in the repository.
+## 👍 Quick Import (.rbxm)
+The fastest way to get the full library into your project is to use the binary model.
+1. Download the latest version in the [Releases](https://github.com/me-when102/helloGMP/releases) page.
+2. Drag and drop the `.rbxm` file directly into **Roblox Studio** and parent it under `ReplicatedStorage`.
+3. The folder structure, module scripts, and source code are already pre-configured for you.
 
 ## 🧱 Partial Import: Core Integer Support
 This section describes how to import only the minimum subset of files required for arbitrary-precision integer arithmetic (`hello_mpz`).
+
+> **Rule:** The folder and ModuleScript structure inside Roblox Studio
+> must exactly match the structure of the `src/` directory in the repository.
 
 ### Required Source Files
 From the repository:
