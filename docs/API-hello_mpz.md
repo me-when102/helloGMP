@@ -342,6 +342,104 @@ print("3 random integers:", random_1, random_2, random_3)
 print("took ".. tostring(os.clock() - t) .. " seconds") -- should take less than 0.05 seconds on modern hardware
 ```
 
+### For loop Support
+
+```lua
+local hello_mpz = require(path.to.hello_mpz)
+
+-- Basic upward iteration (inclusive)
+local a = hello_mpz.new("1")
+local b = hello_mpz.new("10")
+
+print("=== :to (inclusive) ===")
+for i in a:to(b) do
+	print(i)
+end
+-- 1 2 3 4 5 6 7 8 9 10
+
+-- Upward iteration with custom step (string, number, or mpz)
+print("\n=== :to with step ===")
+for i in a:to("20", "3") do -- steps can be strings or numbers, not only hello_mpz instances
+	print(i)
+end
+-- 1 4 7 10 13 16 19
+
+-- Upward exclusive iteration
+print("\n=== :toExclusive (exclusive) ===")
+for i in a:toExclusive("10", 2) do
+	print(i)
+end
+-- 1 3 5 7 9
+
+-- Downward iteration (inclusive)
+local c = hello_mpz.new("15")
+local d = hello_mpz.new("5")
+
+print("\n=== :downTo (inclusive) ===")
+for i in c:downTo(d) do
+	print(i)
+end
+-- 15 14 13 12 11 10 9 8 7 6 5
+
+-- Downward exclusive iteration
+print("\n=== :downToExclusive (exclusive) ===")
+for i in c:downToExclusive("5") do
+	print(i)
+end
+-- 15 14 13 12 11 10 9 8 7 6
+
+-- Standalone iterator (hello_mpz.range)
+print("\n=== hello_mpz.range ===")
+for i in hello_mpz.range("0", "12", "4") do
+	print(i)
+end
+-- 0 4 8 12
+```
+
+### Factorials 
+
+```lua
+local hello_mpz = require(path.to.hello_mpz)
+
+-- Small examples for readability
+local a = hello_mpz.new("10")
+local b = hello_mpz.new("15")
+local c = hello_mpz.new("25")
+
+print("=== Factorial ===")
+print("10!:", a:factorial())   -- 3628800
+print("15!:", b:factorial())   -- 1307674368000
+print("25!:", c:factorial())   -- 15511210043330985984000000
+
+print("\n=== Double Factorial ===")
+local d1 = hello_mpz.new("10")
+local d2 = hello_mpz.new("9")
+
+print("10!!:", d1:doubleFactorial())  -- 3840  (10 * 8 * 6 * 4 * 2)
+print("9!!:",  d2:doubleFactorial())  -- 945   (9 * 7 * 5 * 3 * 1)
+
+print("\n=== Multi-Factorial (step k) ===")
+local m = hello_mpz.new("20")
+
+print("20!_3:", m:multiFactorial(3))  -- 20 * 17 * 14 * 11 * 8 * 5 * 2
+print("20!_4:", m:multiFactorial("4")) -- 20 * 16 * 12 * 8 * 4
+
+-- Large factorials (binary splitting)
+print("\n=== Large Factorials (timed) ===")
+local t = os.clock()
+
+local big1 = hello_mpz.new("100")
+local big2 = hello_mpz.new("200")
+
+local f100 = big1:factorial()
+local f200 = big2:factorial()
+
+print("100!:", f100)
+print("200!:", f200)
+
+print("took ".. tostring(os.clock() - t) .. " seconds")
+```
+
 ### Base Representations and Conversions
 
 ```lua
@@ -489,15 +587,15 @@ This sequence grows extraordinarily fast, each increment of `x` doubles the expo
 
 | x | Approximate Value | Decimal Digits | Time |
 |---|-------------------|----------------|------|
-| 10 | 1.79769313486231 × 10^308 | 308 | 0.0009s |
-| 12 | 1.04438888141315 × 10^1233 | 1233 | 0.0026s |
-| 13 | 1.09074813561941 × 10^2466 | 2466 | 0.0064s |
-| 14 | 1.18973149535723 × 10^4932 | 4932 | 0.0148s |
-| 15 | 1.41546103104495 × 10^9864 | 9864 | 0.0408s |
-| 16 | 2.00352993040684 × 10^19728 | 19,728 | 0.1202s |
-| 17 | 4.01413218203606 × 10^39456 | 39,456 | 0.3623s |
-| 18 | 1.61132571748576 × 10^78913 | 78,913 | 1.1055s |
-| 19 | 2.59637056783100 × 10^157826 | 157,826 | 3.3927s |
+| 10 | 1.79769313486231 * 10^308 | 308 | 0.0009s |
+| 12 | 1.04438888141315 * 10^1233 | 1233 | 0.0026s |
+| 13 | 1.09074813561941 * 10^2466 | 2466 | 0.0064s |
+| 14 | 1.18973149535723 * 10^4932 | 4932 | 0.0148s |
+| 15 | 1.41546103104495 * 10^9864 | 9864 | 0.0408s |
+| 16 | 2.00352993040684 * 10^19728 | 19,728 | 0.1202s |
+| 17 | 4.01413218203606 * 10^39456 | 39,456 | 0.3623s |
+| 18 | 1.61132571748576 * 10^78913 | 78,913 | 1.1055s |
+| 19 | 2.59637056783100 * 10^157826 | 157,826 | 3.3927s |
 | 20 | — | ~315,000 | **Timeout** |
 
 ### Observations
@@ -521,50 +619,50 @@ Performance testing conducted in Roblox Studio with fixed seed (123456), average
 **Test configuration:**
 - **Small numbers**: 5-digit integers (200 samples)
 - **Large numbers**: 20-digit integers (200 samples)
-- **Mixed**: Small × Large operations
+- **Mixed**: Small * Large operations
 
 #### Operation Performance
 
 | Operation       | Size   | helloGMP     | APInt        | Speedup          |
 |-----------------|--------|--------------|--------------|------------------|
-| **Division**    | Small  | 0.001455s   | 0.017752s   | **12.2×**        |
-|                 | Large  | 0.002239s   | 0.046516s   | **20.8×** 🔥     |
-|                 | Mixed  | 0.001050s   | 0.020059s   | **19.1×**        |
-| **Modulo**      | Small  | 0.001440s   | 0.018080s   | **12.6×**        |
-|                 | Large  | 0.002244s   | 0.046159s   | **20.6×** 🔥     |
-|                 | Mixed  | 0.000957s   | 0.019746s   | **20.6×**        |
-| **Multiplication** | Small  | 0.001115s | 0.003450s   | **3.1×**         |
-|                 | Large  | 0.001891s   | 0.003856s   | **2.0×**         |
-|                 | Mixed  | 0.001411s   | 0.003721s   | **2.6×**         |
-| **toString**    | Small  | 0.000183s   | 0.000888s   | **4.9×**         |
-|                 | Large  | 0.000253s   | 0.001552s   | **6.1×**         |
-| **Addition**    | Small  | 0.022490s   | 0.032313s   | **1.4×**         |
-|                 | Large  | 0.029590s   | 0.034350s   | **1.2×**         |
-|                 | Mixed  | 0.027622s   | 0.033654s   | **1.2×**         |
-| **Subtraction** | Small  | 0.048052s   | 0.091559s   | **1.9×**         |
-|                 | Large  | 0.067121s   | 0.096733s   | **1.4×**         |
-|                 | Mixed  | 0.058459s   | 0.102195s   | **1.7×**         |
-| **Equality (==)** | Small  | 0.005162s | 0.007807s   | **1.5×**         |
-|                 | Large  | 0.005041s   | 0.006425s   | **1.3×**         |
-|                 | Mixed  | 0.005502s   | 0.006931s   | **1.3×**         |
-| **Comparison (<)** | Small  | 0.006800s | 0.020627s   | **3.0×**         |
-|                 | Large  | 0.006663s   | 0.020261s   | **3.0×**         |
-|                 | Mixed  | 0.006634s   | 0.020278s   | **3.1×**         |
+| **Division**    | Small  | 0.001455s   | 0.017752s   | **12.2***        |
+|                 | Large  | 0.002239s   | 0.046516s   | **20.8*** 🔥     |
+|                 | Mixed  | 0.001050s   | 0.020059s   | **19.1***        |
+| **Modulo**      | Small  | 0.001440s   | 0.018080s   | **12.6***        |
+|                 | Large  | 0.002244s   | 0.046159s   | **20.6*** 🔥     |
+|                 | Mixed  | 0.000957s   | 0.019746s   | **20.6***        |
+| **Multiplication** | Small  | 0.001115s | 0.003450s   | **3.1***         |
+|                 | Large  | 0.001891s   | 0.003856s   | **2.0***         |
+|                 | Mixed  | 0.001411s   | 0.003721s   | **2.6***         |
+| **toString**    | Small  | 0.000183s   | 0.000888s   | **4.9***         |
+|                 | Large  | 0.000253s   | 0.001552s   | **6.1***         |
+| **Addition**    | Small  | 0.022490s   | 0.032313s   | **1.4***         |
+|                 | Large  | 0.029590s   | 0.034350s   | **1.2***         |
+|                 | Mixed  | 0.027622s   | 0.033654s   | **1.2***         |
+| **Subtraction** | Small  | 0.048052s   | 0.091559s   | **1.9***         |
+|                 | Large  | 0.067121s   | 0.096733s   | **1.4***         |
+|                 | Mixed  | 0.058459s   | 0.102195s   | **1.7***         |
+| **Equality (==)** | Small  | 0.005162s | 0.007807s   | **1.5***         |
+|                 | Large  | 0.005041s   | 0.006425s   | **1.3***         |
+|                 | Mixed  | 0.005502s   | 0.006931s   | **1.3***         |
+| **Comparison (<)** | Small  | 0.006800s | 0.020627s   | **3.0***         |
+|                 | Large  | 0.006663s   | 0.020261s   | **3.0***         |
+|                 | Mixed  | 0.006634s   | 0.020278s   | **3.1***         |
 
 #### Constructor Performance
 
 | Number Size     | helloGMP     | APInt        | Notes                        |
 |-----------------|--------------|--------------|------------------------------|
-| Small           | 0.000413s   | 0.000143s   | APInt **~2.9× faster**       |
-| Large           | 0.000431s   | 0.000317s   | APInt **~1.4× faster**       |
+| Small           | 0.000413s   | 0.000143s   | APInt **~2.9* faster**       |
+| Large           | 0.000431s   | 0.000317s   | APInt **~1.4* faster**       |
 
 > **Constructor tradeoff:** APInt has lower overhead for small number construction, while helloGMP's asymptotically efficient algorithm becomes faster as numbers grow larger. 
 
 ### Key Takeaways
 
 **helloGMP excels at:**
-- **Division and modulo operations**: 18-24× faster across all sizes
-- **String conversions**: 6-9× faster
+- **Division and modulo operations**: 18-24* faster across all sizes
+- **String conversions**: 6-9* faster
 - **All arithmetic operations**: Consistently faster, especially on larger numbers
 - **Extreme number sizes**: Remains stable for 100+ digit division where APInt may timeout
 
