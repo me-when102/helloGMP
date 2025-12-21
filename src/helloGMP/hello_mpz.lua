@@ -676,7 +676,7 @@ local function cmpAbs(a, b)
 end
 
 -- compare function handler
-local function compare(a, b)
+local function _compare(a, b)
 	if a.sign == 0 and b.sign == 0 then return 0 end
 	if a.sign ~= b.sign then
 		return (a.sign > b.sign) and 1 or -1
@@ -687,6 +687,9 @@ local function compare(a, b)
 		return -cmpAbs(a, b)
 	end
 end
+
+-- Compares functions
+hello_mpz.compare = _compare
 
 -- equality metamethods
 -- covers all standard lua comparisons
@@ -721,10 +724,10 @@ function hello_mpz.__eq(a, b)
 end
 
 -- Checks if a (hello_mpz number) is less than b (hello_mpz number), use metamethods for full comparator coverage.
-function hello_mpz.__lt(a, b) return compare(a, b) < 0 end
+function hello_mpz.__lt(a, b) return _compare(a, b) < 0 end
 
 -- Checks if a (hello_mpz number) is less or equal to b (hello_mpz number), use metamethods for full comparator coverage.
-function hello_mpz.__le(a, b) return compare(a, b) <= 0 end
+function hello_mpz.__le(a, b) return _compare(a, b) <= 0 end
 
 -- sign comparators for convenience
 

@@ -32,12 +32,12 @@ To ensure reliability, core arithmetic and number-theoretic functions have been 
 ## Three Main Libraries
 The **helloGMP** library is planned to have three main modules that specializes on different numeric domains similar to GMP's foundational design, for more information, click on their `name`:
 - [`hello_mpz`](./docs/API-hello_mpz.md): Specializes on high-performance arbitrary precision integer arithmetic. **This is the core of the helloGMP library.**
-- `hello_mpq`: Specializes on rational number arithmetic that represents values as normalized fractions to avoid rounding error. 
+- [`hello_mpq`](./docs/API-hello_mpq.md): Specializes on rational number arithmetic that represents values as normalized fractions to avoid rounding error. 
 - `hello_mpf`: Specializes on float-point arithmetic with configurable precision and rounding modes for numerics that need controlled approximation.
 
 ### Current Status 
-- ✅ `hello_mpz` (integer arithmetic) is stable and benchmarked
-- ⚠️ `hello_mpq` (rational arithmetic) is planned but not yet implemented
+- ✅ `hello_mpz` (integer arithmetic) is stable
+- ✅ `hello_mpq` (rational arithmetic) is stable
 - ⚠️ `hello_mpf` (floating-point arithmetic) is unlikely to be implemented because it may be complex.
 
 ## **HelloGMP's** Default Base Details
@@ -47,3 +47,10 @@ The **helloGMP** library is planned to have three main modules that specializes 
 - This specific base is large enough to keep the number of limbs (and thus loop iterations) low, but small enough to avoid the overhead of Luau's large-integer handling.
 
 The limb base for **helloGMP** can actually be modified in the `base_settings` module, minimum is 10^3. However setting the base above 10^7 causes precision drift and setting a different base (like 2^52 or 8^16) can corrupt.
+
+## Benchmarking Specs
+All benchmarks in the README documents / manuals of each library API is ran through this environment:
+* **CPU:** Intel(R) Core(TM) i7-6700 @ 3.40GHz
+* **Engine:** Roblox Studio (Luau VM)
+* **Testing Mode:** Server-side Script
+* **Baseline Latency:** Measured using `os.clock()` for sub-millisecond precision.

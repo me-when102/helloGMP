@@ -13,6 +13,7 @@ For clarity, the following complexity notation is used throughout:
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, `//`, `%`, `^`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`  
   (`>` and `>=` are inherited from `__lt` and `__le`)
+- `.compare(a, b)` function to return `1`, `0`, or `-1` results. (1.1.0)
 
 - **Core Constructors & Conversions**
   - `hello_mpz.new(x)` → `O(len(s))` from string, `O(log n)` from number - Unified constructor (string or number)  
@@ -259,6 +260,15 @@ print("z < z:", z < z)           -- false
 print("z >= z:", z >= z)         -- true
 print("z <= z:", z <= z)         -- true
 print("z == z:", z == z)         -- true
+
+print("\n=== Compare Comparisons (1.1.0) ===")
+print("a > b:", hello_mpz.compare(a, b))           -- -1
+print("b > a:", hello_mpz.compare(b, a))           -- 1
+print("c > a:", hello_mpz.compare(c, a))           -- -1
+print("a > c:", hello_mpz.compare(a, c))           -- 1
+print("d > z:", hello_mpz.compare(d, z))           -- -1
+print("z > d:", hello_mpz.compare(z, d))           -- 1
+print("z == z:", hello_mpz.compare(z, z))         -- 0
 ```
 
 ### Utilities
