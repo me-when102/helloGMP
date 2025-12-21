@@ -168,7 +168,7 @@ function hello_mpz.fromString(s)
 		local chunk = tonumber(s:sub(starti, p))
 
 		-- assert chunk (should never fail if validation passed)
-		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."�"..p)
+		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."-"..p)
 
 		table_insert(limbs, chunk)
 		p = starti - 1
@@ -1269,7 +1269,7 @@ local function knuthLimbs(A, B)
 
 	-- Normalization helpers
 	-- Ensures highest limb of divisor >= BASE / 2
-	local function BZnormalize(X, d)
+	local function KNnormalize(X, d)
 		local R, carry = {}, 0
 		for i = 1, #X do
 			local v = X[i] * d + carry
@@ -1298,8 +1298,8 @@ local function knuthLimbs(A, B)
 	local d = math_floor(BASE / (B[n] + 1))
 	if d < 1 then d = 1 end
 
-	local U = BZnormalize(A, d)
-	local V = BZnormalize(B, d)
+	local U = KNnormalize(A, d)
+	local V = KNnormalize(B, d)
 	normalize_limbs(V)
 
 	n = #V
@@ -1309,7 +1309,7 @@ local function knuthLimbs(A, B)
 
 	m = #U - n - 1
 
-	-- D2�D7: Main division loop
+	-- D2-D7: Main division loop
 	local Q = {}
 	for i = 1, m + 1 do Q[i] = 0 end
 

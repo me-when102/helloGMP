@@ -610,11 +610,11 @@ This benchmark demonstrates the practical upper bound of exponentiation in Luau 
 
 ## ⚒️ Performance Comparison
 
-helloGMP builds upon the excellent work of libraries like [APInt](https://github.com/CrabGuy/APInt) (by [CrabGuy](https://github.com/CrabGuy)) in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
+**HelloGMP's** `hello_mpz` module builds upon the excellent work of libraries like [APInt](https://github.com/CrabGuy/APInt) (by [CrabGuy](https://github.com/CrabGuy)) in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
 
 ### Head-to-Head Benchmark: helloGMP vs APInt
 
-Performance testing conducted in Roblox Studio with fixed seed (123456), averaged over 3 iterations.
+Performance testing conducted in Roblox Studio with fixed seed (`123456`), averaged over 3 iterations.
 
 **Test configuration:**
 - **Small numbers**: 5-digit integers (200 samples)
@@ -660,16 +660,14 @@ Performance testing conducted in Roblox Studio with fixed seed (123456), average
 
 ### Key Takeaways
 
-**helloGMP excels at:**
+**HelloGMP advantages:**
 - **Division and modulo operations**: 18-24× faster across all sizes
 - **String conversions**: 6-9× faster
 - **All arithmetic operations**: Consistently faster, especially on larger numbers
-- **Extreme number sizes**: Remains stable for 100+ digit division where APInt may timeout
 
 **APInt advantages:**
-- Smaller codebase (~553 lines vs ~2000 lines)
-- Slightly faster constructor for small numbers
-- Excellent choice for applications with moderate number sizes
+- **Compactness**: Smaller codebase (~553 lines vs ~2000 lines)
+- **Constructor speed**: Slightly faster constructor for small numbers
 
 ---
 
