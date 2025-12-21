@@ -7,8 +7,7 @@ local hello_mpz = require(script.Parent.hello_mpz) -- hello_mpq relies on hello_
 -- sure
 hello_mpq.__index = hello_mpq
 
-local BASE = base_settings.BASE
-local BASE_DIGS = math.log10(BASE)
+-- NOTE: This module assumes hello_mpz implements value-based __eq, __lt, etc comparison metamethods
 
 ----------------------------------------------------
 -- Caching
@@ -62,7 +61,7 @@ local function to_mpz(x)
 	end
 end
 
--- normalize to ensure limbs < BASE
+-- canoncializes rationals
 local function normalize(q)
 	-- handle 0 denominator
 	if q.den:isZero() then
