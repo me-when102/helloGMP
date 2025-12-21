@@ -13,11 +13,13 @@ hello_mpq.__index = hello_mpq
 -- Caching
 ----------------------------------------------------
 
--- other caching function
+-- other caching functions
 local setmetatable = setmetatable
 local getmetatable = getmetatable
 
 local type = type
+
+local MPQ_MT = getmetatable(setmetatable({}, hello_mpq))
 
 -- hello_mpz caching
 local mpz_fromString = hello_mpz.fromString
@@ -45,7 +47,7 @@ local function make(nom, den)
 end
 
 -- convert to hello_mpz if possible
-local function to_mpz(x)
+local function to_mpq(x)
 	local mt = getmetatable(x)
 	if mt == hello_mpz then
 		return x
@@ -61,24 +63,32 @@ local function to_mpz(x)
 	end
 end
 
+local function require_mpq(v, name)
+	if getmetatable(v) ~= MPQ_MT then
+		error(name .. " must be a hello_mpq instance. Use hello_mpq.new(nom, den) to convert.", 3)
+	end
+end
+
 -- canoncializes rationals
 local function normalize(q)
 	-- handle 0 denominator
 	if q.den:isZero() then
 		error("Denominator cannot be zero.")
 	end
-	
+
 	-- if denominator < 0, flip both
 	if q.den.sign < 0 then
 		q.nom = -q.nom
 		q.den = -q.den
 	end
-	
+
 	-- zero numerator == zero
 	if q.nom:isZero() then
 		q.den = ONE:clone()
 		return q
 	end
+	
+	if q.den == ONE then return q end -- Skip GCD if denominator is already 1
 	
 	-- GCD reduction
 	local g = mpz_GCD(q.nom, q.den)
@@ -87,7 +97,7 @@ local function normalize(q)
 		q.nom = q.nom // g
 		q.den = q.den // g
 	end
-	
+
 	return q
 end
 
@@ -106,17 +116,17 @@ function hello_mpq.fromNumber(nom, den)
 end
 
 function hello_mpq:toString()
-	
+
 	-- print "0" if numerator == 0
 	if self.nom:isZero() then
 		return "0"
 	end
-	
+
 	-- if Denominator == 1 then just print out the numerator
 	if self.den == ONE then
 		return tostring(self.nom)
 	end
-	
+
 	-- general representation
 	return tostring(self.nom) .. "/" .. tostring(self.den)
 end
@@ -130,11 +140,14 @@ hello_mpq.__tostring = hello_mpq.toString
 -- Adds two hello_mpq rationals.
 function hello_mpq.__add(q1, q2)
 	
-	-- Same denominator shortcut (often occurs in loops or series)
+	require_mpq(q1, "Left operand")
+	require_mpq(q2, "Right operand")
+	
+	-- Same denominator shortcut (often occurs	 in loops or series)
 	if q1.den == q2.den then
 		return normalize(make(q1.nom + q2.nom, q1.den:clone()))
 	end
-	
+
 	local n1, d1 = q1.nom, q1.den
 	local n2, d2 = q2.nom, q2.den
 
@@ -158,6 +171,10 @@ end
 
 -- Subtracts two hello_mpq rationals.
 function hello_mpq.__sub(q1, q2)
+	
+	require_mpq(q1, "Left operand")
+	require_mpq(q2, "Right operand")
+	
 	local n1, d1 = q1.nom, q1.den
 	local n2, d2 = q2.nom, q2.den
 
@@ -179,6 +196,10 @@ end
 -- Multiplies two hello_mpq rationals.
 -- Uses cross-simplification.
 function hello_mpq.__mul(q1, q2)
+	
+	require_mpq(q1, "Left operand")
+	require_mpq(q2, "Right operand")
+	
 	local n1, d1 = q1.nom, q1.den
 	local n2, d2 = q2.nom, q2.den
 
@@ -198,6 +219,10 @@ end
 -- Divides two hello_mpq rationals.
 -- Uses cross-simplification.
 function hello_mpq.__div(q1, q2)
+	
+	require_mpq(q1, "Left operand")
+	require_mpq(q2, "Right operand")
+	
 	local n1, d1 = q1.nom, q1.den
 	local n2, d2 = q2.nom, q2.den
 
@@ -257,12 +282,12 @@ end
 
 -- Determines if the hello_mpq rational is less than another hello_mpq rational.
 function hello_mpq.__lt(q1, q2)
-	
+
 	-- reference check first
 	if q1.den == q2.den then
 		return q1.nom < q2.nom
 	end
-	
+
 	-- Cross-multiply to avoid floating point issues
 	-- n1/d1 < n2/d2  =>  n1*d2 < n2*d1
 	return (q1.nom * q2.den) < (q2.nom * q1.den)
@@ -302,8 +327,8 @@ local function fromAny(nom, den)
 		den = 1
 	end
 
-	local n = to_mpz(nom)
-	local d = to_mpz(den)
+	local n = to_mpq(nom)
+	local d = to_mpq(den)
 
 	return normalize(make(n, d))
 end
