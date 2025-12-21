@@ -38,7 +38,7 @@ The **helloGMP** library is planned to have three main modules that specializes 
 ### Current Status 
 - ✅ `hello_mpz` (integer arithmetic) is stable and benchmarked
 - ⚠️ `hello_mpq` (rational arithmetic) is planned but not yet implemented
-- ⚠️ `hello_mpf` (floating-point arithmetic) is experimental and subject to change
+- ⚠️ `hello_mpf` (floating-point arithmetic) is unlikely to be implemented because it may be complex.
 
 ## **HelloGMP's** Default Base Details
 **HelloGMP** actually chooses the default limb base of **10^7** which may be the sweet spot for arbitrary precision arithmetic under Luau constraints.
