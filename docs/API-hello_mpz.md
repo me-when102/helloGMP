@@ -486,7 +486,7 @@ local parsed = hello_mpz.fromBase("DEC#12345678901234567890", 10, "0123456789", 
 print("Custom parse matches?", parsed == medium)             -- true
 ```
 
-## 🔨 Performance Benchmarks
+## 🔨 Performance Benchmarks (Tested in helloGMP 1.0.0)
 
 All benchmarks conducted in Roblox Studio with fixed seed (123456) and averaged over 3 iterations.
 
