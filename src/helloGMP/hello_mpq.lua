@@ -336,4 +336,11 @@ end
 -- Constructs a hello_mpq rational from nominator and denominator.
 hello_mpq.new = fromAny
 
+-- make the table a callable function
+setmetatable(hello_mpq, {
+	__call = function(_, nom, den)
+		return fromAny(nom, den)
+	end,
+})
+
 return hello_mpq
