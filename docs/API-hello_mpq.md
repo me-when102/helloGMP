@@ -1,8 +1,6 @@
 # HelloGMP: `hello_mpq`
 The `hello_mpq` module is one of the main libraries of the **helloGMP** library which provides big and exact rational number arithmetic. How `hello_mpq` works depends on the foundations of the `hello_mpz` module's arithmetic foundations, therefore its performance is significantly slower in asymptotic complexity.
 
-> NOTE: This document is working in progress, you can use the source code and learn it yourself.
-
 ## ✨ Features of `hello_mpq`
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`
@@ -27,7 +25,7 @@ The `hello_mpq` module is one of the main libraries of the **helloGMP** library 
 - Mixed fraction representation.
 - Native `floor` and `ceil` functions.
 - Exponent arithmetic `^`.
-- Square root and n-root arithmetic.
+- Square root and n-root arithmetic (may be extremely difficult).
 
 ## Uses and Demonstrations of `hello_mpz`
 
@@ -195,6 +193,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Subtract  | 9.588679 | 4794.340 |
 | Multiply  | 5.020431 | 2510.216 |
 | Divide    | 5.129610 | 2564.805 |
+> `hello_mpq` would almost time out here.
 
 ### Mixed‑Size Arithmetic
 
