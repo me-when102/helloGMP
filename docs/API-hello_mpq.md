@@ -159,8 +159,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 - **Medium:** 50‑digit numbers  
 - **Large:** 100‑digit numbers  
 
----
-
 ## Constructors
 
 | Operation        | Time (s) | µs/op |
@@ -168,8 +166,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | fromString       | 0.118386 | 59.193 |
 | fromNumber       | 0.064119 | 32.060 |
 | new / fromAny    | 0.060962 | 30.481 |
-
----
 
 ## Core Arithmetic Operations
 
@@ -200,8 +196,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 5.020431 | 2510.216 |
 | Divide    | 5.129610 | 2564.805 |
 
----
-
 ## Mixed‑Size Arithmetic
 
 ### **Small + Medium**
@@ -230,8 +224,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Subtract  | 6.216346 | 3108.173 |
 | Multiply  | 4.239121 | 2119.561 |
 | Divide    | 4.567661 | 2283.830 |
-
----
 
 ## Utility Operations
 
@@ -262,8 +254,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | inv       | 2.575326 | 1287.663 |
 | toString  | 0.020145 | 10.072 |
 
----
-
 ## Comparison Operations
 
 ### **Small**
@@ -292,8 +282,6 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __lt      | 0.035024 | 17.512 |
 | __le      | 0.033829 | 16.915 |
 | compare   | 0.035937 | 17.968 |
-
----
 
 ## Mixed‑Size Comparisons
 
