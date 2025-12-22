@@ -115,6 +115,8 @@ function hello_mpq.fromNumber(nom, den)
 	return normalize(make(n, d))
 end
 
+-- Converts the hello_mpq rational into a string.
+-- Also can be done when printed or used under tostring function.
 function hello_mpq:toString()
 
 	-- print "0" if numerator == 0
@@ -131,7 +133,14 @@ function hello_mpq:toString()
 	return tostring(self.nom) .. "/" .. tostring(self.den)
 end
 
+-- Converts the hello_mpq rational into a string.
 hello_mpq.__tostring = hello_mpq.toString
+
+-- Converts the hello_mpq rational into a native lua number.
+-- warning: converting it into a native lua number can guarantee loss of precision when it is a recurring decimal.
+function hello_mpq:toNumber()
+	return tonumber(self.nom:toNumber() / self.den:toNumber())
+end
 
 ----------------------------------------------------
 -- Addition + Subtraction + Multiplication + Division

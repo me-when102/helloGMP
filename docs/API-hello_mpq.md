@@ -12,8 +12,9 @@ The `hello_mpq` module is one of the main libraries of the **helloGMP** library 
   - `hello_mpz(nom, den)` → Same as `.new()` but serves as a shortcut.
   - `hello_mpz.fromString(nom, den)` → must be string number
   - `hello_mpz.fromNumber(nom, den)` → must be native Luau number
-  - `:toString()` → Convert to rational string
+  - `:toString()` → Convert rational to string
   - `__tostring` → Metamethod of `:toString()`
+  - `:toNumber()` → Convert rational to approximate native lua number. Can lose precision.
 
 - **Utilities**
   - `:abs()` - Returns the absolute value of the rational.
@@ -68,6 +69,14 @@ local i = hello_mpq.new("-1234213432132134", "-21342143214124321432")
 print("g:", g)
 print("h:", h)
 print("i:", i)
+
+-- to number
+print("a (to number):", a:toNumber())
+print("b (to number):", b:toNumber())
+print("c (to number):", c:toNumber())
+print("d (to number):", d:toNumber())
+print("e (to number):", e:toNumber())
+print("f (to number):", f:toNumber())
 
 print("took ".. tostring(os.clock() - t) .. " seconds") -- should take less than 0.01 seconds on modern hardware
 ```
