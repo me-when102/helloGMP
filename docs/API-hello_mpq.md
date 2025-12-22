@@ -159,7 +159,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 - **Medium:** 50‑digit numbers  
 - **Large:** 100‑digit numbers  
 
-## Constructors
+### Constructors
 
 | Operation        | Time (s) | µs/op |
 |------------------|----------|-------|
@@ -167,9 +167,9 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | fromNumber       | 0.064119 | 32.060 |
 | new / fromAny    | 0.060962 | 30.481 |
 
-## Core Arithmetic Operations
+### Core Arithmetic Operations
 
-### **Small (10‑digit)**
+#### **Small (10‑digit)**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -178,7 +178,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 0.268668 | 134.334 |
 | Divide    | 0.400683 | 200.341 |
 
-### **Medium (50‑digit)**
+#### **Medium (50‑digit)**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -187,7 +187,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 1.878927 | 939.463 |
 | Divide    | 1.905796 | 952.898 |
 
-### **Large (100‑digit)**
+#### **Large (100‑digit)**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -196,9 +196,9 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 5.020431 | 2510.216 |
 | Divide    | 5.129610 | 2564.805 |
 
-## Mixed‑Size Arithmetic
+### Mixed‑Size Arithmetic
 
-### **Small + Medium**
+#### **Small + Medium**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -207,7 +207,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 1.387132 | 693.566 |
 | Divide    | 1.399157 | 699.578 |
 
-### **Small + Large**
+#### **Small + Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -216,7 +216,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 3.236797 | 1618.398 |
 | Divide    | 3.071640 | 1535.820 |
 
-### **Medium + Large**
+#### **Medium + Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -225,9 +225,9 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | Multiply  | 4.239121 | 2119.561 |
 | Divide    | 4.567661 | 2283.830 |
 
-## Utility Operations
+### Utility Operations
 
-### **Small**
+#### **Small**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -236,7 +236,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | inv       | 0.149205 | 74.603 |
 | toString  | 0.003493 | 1.747 |
 
-### **Medium**
+#### **Medium**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -245,7 +245,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | inv       | 1.068707 | 534.354 |
 | toString  | 0.010050 | 5.025 |
 
-### **Large**
+#### **Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -254,9 +254,9 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | inv       | 2.575326 | 1287.663 |
 | toString  | 0.020145 | 10.072 |
 
-## Comparison Operations
+### Comparison Operations
 
-### **Small**
+#### **Small**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -265,7 +265,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __le      | 0.007580 | 3.790 |
 | compare   | 0.006550 | 3.275 |
 
-### **Medium**
+#### **Medium**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -274,7 +274,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __le      | 0.021925 | 10.963 |
 | compare   | 0.024239 | 12.120 |
 
-### **Large**
+#### **Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -283,9 +283,9 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __le      | 0.033829 | 16.915 |
 | compare   | 0.035937 | 17.968 |
 
-## Mixed‑Size Comparisons
+### Mixed‑Size Comparisons
 
-### **Small + Medium**
+#### **Small + Medium**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -294,7 +294,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __le      | 0.011114 | 5.557 |
 | compare   | 0.012394 | 6.197 |
 
-### **Small + Large**
+#### **Small + Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
@@ -303,7 +303,7 @@ Test sizes correspond to digit lengths of numerator and denominator:
 | __le      | 0.013973 | 6.987 |
 | compare   | 0.014997 | 7.499 |
 
-### **Medium + Large**
+#### **Medium + Large**
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
