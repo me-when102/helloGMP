@@ -1668,22 +1668,20 @@ end
 -- GCD and LCM Functions
 ----------------------------------------------------
 
--- Internal: divide a hello_mpz by 2
-local function div2(n)
-	local result = n:clone()
+-- Divide a hello_mpz by 2 (in-place)
+local function div2_inplace(n)
 	local carry = 0
-
-	for i = #result.limbs, 1, -1 do
-		local cur = result.limbs[i] + carry * BASE
-		result.limbs[i] = math_floor(cur / 2)  -- integer division
+	for i = #n.limbs, 1, -1 do
+		local cur = n.limbs[i] + carry * BASE
+		n.limbs[i] = math_floor(cur / 2)  -- integer division
 		carry = cur % 2
 	end
 
-	trim(result)
-	return result
+	trim(n)
+	return n
 end
 
--- Internal: multiply a hello_mpz by 2^k
+-- Multiply a hello_mpz by 2^k
 local function mulPow2(n, k)
 	local result = n:clone()
 
@@ -1712,22 +1710,22 @@ end
 -- Uses binary GCD algorithm.
 function hello_mpz.GCD(a, b)
 	local a, b = to_mpz(a), to_mpz(b)
-	a, b = a:abs(), b:abs()
+	a, b = a:abs(), b:abs() -- cloned
 
 	if a:isZero() then return b end
 	if b:isZero() then return a end
 
 	local shift = 0
 	while a:isEven() and b:isEven() do
-		a = div2(a)
-		b = div2(b)
+		div2_inplace(a)
+		div2_inplace(b)
 		shift = shift + 1
 	end
 
-	while a:isEven() do a = div2(a) end
+	while a:isEven() do div2_inplace(a) end
 
 	while not b:isZero() do
-		while b:isEven() do b = div2(b) end
+		while b:isEven() do div2_inplace(b) end
 
 		if a > b then
 			a, b = b, a
