@@ -406,6 +406,34 @@ end
 -- 0 4 8 12
 ```
 
+### Primality Testing
+
+```lua
+local hello_mpz = require(path.to.hello_mpz)
+
+-- Helper function to test and print primality
+local function testPrime(strNum)
+	local num = hello_mpz.new(strNum)
+	local isPrime = num:isPrime()
+	if isPrime then
+		print(num:toString() .. " is prime!")
+	else
+		print(num:toString() .. " is not prime.")
+	end
+end
+
+-- Test numbers
+testPrime("32416190071")  -- prime
+testPrime("32416190072")  -- not prime
+
+-- Optional: Probabilistic test with Miller-Rabin
+local num = hello_mpz.new("32416190072")
+
+local isProbPrime = num:isProbablePrime(10) -- 10 iterations
+
+print("Probabilistic primality test result:", isProbPrime)
+```
+
 ### Factorials 
 
 ```lua
