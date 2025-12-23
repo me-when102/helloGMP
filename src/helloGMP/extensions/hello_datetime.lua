@@ -1,41 +1,41 @@
 -- helloGMP DateTime module
 
-local HGMP = require(script.Parent.Parent.hello_mpz) -- core
+local hello_mpz = require(script.Parent.Parent.hello_mpz) -- core
 
-local HGMPDateTime = {}
-HGMPDateTime.__index = HGMPDateTime
+local hello_datetime = {}
+hello_datetime.__index = hello_datetime
 
 -- cache globals
 local tonumber = tonumber
 local tostring = tostring
 local table_unpack = table.unpack
 
--- Cached HGMP constants (avoid re-creating them)
-local C0   = HGMP.fromString("0")
-local C1   = HGMP.fromString("1")
-local C2   = HGMP.fromString("2")
-local C3   = HGMP.fromString("3")
-local C4   = HGMP.fromString("4")
-local C5   = HGMP.fromString("5")
-local C7   = HGMP.fromString("7")
-local C10  = HGMP.fromString("10")
-local C12  = HGMP.fromString("12")
-local C24  = HGMP.fromString("24")
-local C60  = HGMP.fromString("60")
-local C100 = HGMP.fromString("100")
-local C153 = HGMP.fromString("153")
-local C365 = HGMP.fromString("365")
-local C400 = HGMP.fromString("400")
-local C1460  = HGMP.fromString("1460")
-local C1461  = HGMP.fromString("1461")
-local C36524 = HGMP.fromString("36524")
-local C146096 = HGMP.fromString("146096")
-local C146097 = HGMP.fromString("146097")
-local C719468 = HGMP.fromString("719468")
+-- Cached hello_mpz constants (avoid re-creating them)
+local C0   = hello_mpz.fromString("0")
+local C1   = hello_mpz.fromString("1")
+local C2   = hello_mpz.fromString("2")
+local C3   = hello_mpz.fromString("3")
+local C4   = hello_mpz.fromString("4")
+local C5   = hello_mpz.fromString("5")
+local C7   = hello_mpz.fromString("7")
+local C10  = hello_mpz.fromString("10")
+local C12  = hello_mpz.fromString("12")
+local C24  = hello_mpz.fromString("24")
+local C60  = hello_mpz.fromString("60")
+local C100 = hello_mpz.fromString("100")
+local C153 = hello_mpz.fromString("153")
+local C365 = hello_mpz.fromString("365")
+local C400 = hello_mpz.fromString("400")
+local C1460  = hello_mpz.fromString("1460")
+local C1461  = hello_mpz.fromString("1461")
+local C36524 = hello_mpz.fromString("36524")
+local C146096 = hello_mpz.fromString("146096")
+local C146097 = hello_mpz.fromString("146097")
+local C719468 = hello_mpz.fromString("719468")
 
-local SECS_PER_DAY  = HGMP.fromString("86400")
-local SECS_PER_HOUR = HGMP.fromString("3600")
-local SECS_PER_MIN  = HGMP.fromString("60")
+local SECS_PER_DAY  = hello_mpz.fromString("86400")
+local SECS_PER_HOUR = hello_mpz.fromString("3600")
+local SECS_PER_MIN  = hello_mpz.fromString("60")
 
 -- month lengths (small Lua table: numbers)
 local MONTH_LEN = {31,28,31,30,31,30,31,31,30,31,30,31}
@@ -43,31 +43,31 @@ local MONTH_LEN = {31,28,31,30,31,30,31,31,30,31,30,31}
 ----------------------------------------------------
 -- Timezone Management
 ----------------------------------------------------
-HGMPDateTime._timezoneOffset = HGMP.fromString("0") -- seconds
+hello_datetime._timezoneOffset = hello_mpz.fromString("0") -- seconds
 
 -- Sets the timezone to offset (seconds). This is a global setting.
-function HGMPDateTime:setTimezone(offset)
+function hello_datetime:setTimezone(offset)
 	if type(offset) == "number" then
-		self._timezoneOffset = HGMP.fromString(tostring(offset))
-	elseif getmetatable(offset) == HGMP then
+		self._timezoneOffset = hello_mpz.fromString(tostring(offset))
+	elseif getmetatable(offset) == hello_mpz then
 		self._timezoneOffset = offset
 	else
-		error("Timezone offset must be a number or HGMP")
+		error("Timezone offset must be a number or hello_mpz")
 	end
 end
 
 -- Gets the timezone setting.
-function HGMPDateTime:getTimezone()
+function hello_datetime:getTimezone()
 	return self._timezoneOffset
 end
 
 ----------------------------------------------------
--- Leap year (HGMP-only)
+-- Leap year (hello_mpz-only)
 ----------------------------------------------------
 
--- checks if HGMPDateTime year is a leap year.
-function HGMPDateTime.isLeapYear(year)
-	-- year is HGMP
+-- checks if hello_datetime year is a leap year.
+function hello_datetime.isLeapYear(year)
+	-- year is hello_mpz
 	local mod4   = year:mod(C4)
 	local mod100 = year:mod(C100)
 	local mod400 = year:mod(C400)
@@ -78,10 +78,10 @@ end
 ----------------------------------------------------
 -- Helpers
 ----------------------------------------------------
-local function daysInMonth(year, month) -- month is HGMP (small)
+local function daysInMonth(year, month) -- month is hello_mpz (small)
 	local idx = tonumber(month:toString())
 	local lengths = { table_unpack(MONTH_LEN) }
-	if HGMPDateTime.isLeapYear(year) then lengths[2] = 29 end
+	if hello_datetime.isLeapYear(year) then lengths[2] = 29 end
 	return lengths[idx]
 end
 
@@ -158,7 +158,7 @@ end
 -- Constructors
 ----------------------------------------------------
 local function make(epoch, year, month, day, hour, minute, second)
-	local self = setmetatable({}, HGMPDateTime)
+	local self = setmetatable({}, hello_datetime)
 	self.epoch  = epoch
 	self.year   = year
 	self.month  = month
@@ -169,16 +169,16 @@ local function make(epoch, year, month, day, hour, minute, second)
 	return self
 end
 
--- Creates HGMPDateTime object from epoch value.
+-- Creates hello_datetime object from epoch value.
 -- Is not affected by timezone offset.
-function HGMPDateTime.fromEpoch(epoch)
+function hello_datetime.fromEpoch(epoch)
 	local year, month, day, hour, minute, second = computeFieldsFromEpoch(epoch)
 	return make(epoch, year, month, day, hour, minute, second)
 end
 
--- Creates HGMPDateTime object from fields. (year, month, day, hour, minute, second)
+-- Creates hello_datetime object from fields. (year, month, day, hour, minute, second)
 -- Is not affected by timezone offset.
-function HGMPDateTime.fromFields(year, month, day, hour, minute, second)
+function hello_datetime.fromFields(year, month, day, hour, minute, second)
 	local epoch = computeEpochFromFields(year, month, day, hour, minute, second)
 	return make(epoch, year, month, day, hour, minute, second)
 end
@@ -187,14 +187,14 @@ end
 -- Add / Subtract
 ----------------------------------------------------
 
--- Adds two HGMPDateTime objects based on epoch value.
-function HGMPDateTime:add(other)
-	return HGMPDateTime.fromEpoch(self.epoch + other.epoch)
+-- Adds two hello_datetime objects based on epoch value.
+function hello_datetime:add(other)
+	return hello_datetime.fromEpoch(self.epoch + other.epoch)
 end
 
--- Subtracts two HGMPDateTime objects based on epoch value.
-function HGMPDateTime:sub(other)
-	return HGMPDateTime.fromEpoch(self.epoch - other.epoch)
+-- Subtracts two hello_datetime objects based on epoch value.
+function hello_datetime:sub(other)
+	return hello_datetime.fromEpoch(self.epoch - other.epoch)
 end
 
 ----------------------------------------------------
@@ -220,13 +220,13 @@ local function computeWeekday(epoch)
 	return tonumber(wd:toString()) + 1
 end
 
--- Converts the UTC time with the timezone offset applied in HGMPDatetime.
-function HGMPDateTime:withTimezone()
-	if HGMPDateTime._timezoneOffset == C0 then
+-- Converts the UTC time with the timezone offset applied in hello_datetime.
+function hello_datetime:withTimezone()
+	if hello_datetime._timezoneOffset == C0 then
 		return self -- no offset, return self
 	end
 	
-	local adjustedEpoch = self.epoch + HGMPDateTime._timezoneOffset
+	local adjustedEpoch = self.epoch + hello_datetime._timezoneOffset
 	local year, month, day, hour, minute, second = computeFieldsFromEpoch(adjustedEpoch)
 	return make(adjustedEpoch, year, month, day, hour, minute, second)
 end
@@ -234,9 +234,9 @@ end
 ----------------------------------------------------
 -- Formatters (micro-optimised)
 ----------------------------------------------------
--- Pads a year (HGMP) to 4 digits, handling negatives
+-- Pads a year (hello_mpz) to 4 digits, handling negatives
 local function padYear(year)
-	if year < HGMP.fromString("0") then
+	if year < hello_mpz.fromString("0") then
 		return string.format("-%04d", -year:toString())  -- negative years
 	else
 		return string.format("%04d", year:toString())   -- positive years
@@ -249,8 +249,8 @@ local function pad2_from_string(s)
 	return s
 end
 
--- Formats the HGMPDateTime object to ISO formatting.
-function HGMPDateTime:toISO()
+-- Formats the hello_datetime object to ISO formatting.
+function hello_datetime:toISO()
 	-- avoid tonumber conversions when possible: use :toString() directly and pad by length
 	self = self:withTimezone() -- convert with timezone
 	
@@ -264,8 +264,8 @@ function HGMPDateTime:toISO()
 	return table.concat({ yStr, "-", mStr, "-", dStr, "T", hStr, ":", minStr, ":", sStr, "Z" })
 end
 
--- Formats the HGMPDateTime object to human-readable format.
-function HGMPDateTime:toHuman()
+-- Formats the hello_datetime object to human-readable format.
+function hello_datetime:toHuman()
 	self = self:withTimezone() -- convert with timezone
 	
 	local wd = computeWeekday(self.epoch)
@@ -291,8 +291,8 @@ function HGMPDateTime:toHuman()
 		weekday, dayStr, month, yearStr, hStr, mStr, sStr)
 end
 
--- Formats the HGMPDateTime object to Unix seconds.
-function HGMPDateTime:toUnixSeconds()
+-- Formats the hello_datetime object to Unix seconds.
+function hello_datetime:toUnixSeconds()
 	return tonumber(self.epoch:toString())
 end
 
@@ -343,7 +343,7 @@ local function ordinalDay(day)
 	return tostring(d) .. suffix
 end
 
--- Formats the HGMPDateTime object to the following pattern (string):
+-- Formats the hello_datetime object to the following pattern (string):
 -- For the following examples: Thursday 0005/3/1 1:21.25 PM UTC
 -- YYYY = Year. EG: YYYY = 5
 -- yyyy = Padded year. EG: yyyy = 0005
@@ -362,7 +362,7 @@ end
 -- WD3 = Short weekday. EG: Thu
 -- EPOCH = Epoch time.
 -- UNIX = Unix time.
-function HGMPDateTime:format(pattern)
+function hello_datetime:format(pattern)
 	self = self:withTimezone() -- convert with timezone
 	
 	local yearStr   = self.year:toString()
@@ -419,4 +419,4 @@ function HGMPDateTime:format(pattern)
 	return out
 end
 
-return HGMPDateTime
+return hello_datetime

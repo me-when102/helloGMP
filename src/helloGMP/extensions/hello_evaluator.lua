@@ -1,6 +1,6 @@
-local helloGMP = require(script.Parent.Parent.hello_mpz) -- core
+local hello_mpz = require(script.Parent.Parent.hello_mpz) -- core
 
-local HGMPEvaluator = {}
+local hello_evaluator = {}
 
 ----------------------------------------------------
 -- Caching
@@ -93,13 +93,13 @@ end
 
 -- Postfix Evaluation
 -- Evalutes a postfix (RPN) token stream
--- Arithmetic handled by helloGMP's operator overload
+-- Arithmetic handled by hello_mpz's operator overload
 local function evalPostfix(postfix)
 	local stack = {}
 	for _, token in ipairs(postfix) do
-		-- Push to helloGMP number when it is a numeric ltieral
+		-- Push to hello_mpz number when it is a numeric ltieral
 		if isNumberToken(token) then
-			table_insert(stack, helloGMP.fromString(token))
+			table_insert(stack, hello_mpz.fromString(token))
 			
 		-- Binary operators
 		elseif token == "+" then
@@ -224,12 +224,12 @@ end
 
 -- Evaluates an expression given by a string.
 -- For example, "1+1" outputs 2
-function HGMPEvaluator.evaluate(expr)
+function hello_evaluator.evaluate(expr)
 	local tokens = tokenize(expr)
 	tokens = processTokens(tokens)
 	local postfix = toPostfix(tokens)
-	return helloGMP.fromString(tostring(evalPostfix(postfix)))
+	return hello_mpz.fromString(tostring(evalPostfix(postfix)))
 end
 
 
-return HGMPEvaluator
+return hello_evaluator
