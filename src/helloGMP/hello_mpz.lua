@@ -93,6 +93,10 @@ end
 local ZERO = make(0, {0})
 local ONE = make(1, {1})
 local TWO = make(1, {2})
+local FOUR = make(1, {4})
+local THREE = make(1, {3})
+local FIVE = make(1, {5})
+local EIGHT = make(1, {8})
 
 ----------------------------------------------------
 -- Main Constructor System
@@ -1955,6 +1959,259 @@ function hello_mpz:multiFactorial(step)
 	end
 
 	return result
+end
+
+----------------------------------------------------
+-- Primality Test
+----------------------------------------------------
+
+-- small primes for trial division
+local SMALL_PRIMES = {
+	2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+	31, 37, 41, 43, 47
+}
+
+-- deterministic bases valid for n < 2^64
+-- (safe even if you don't explicitly check the bound)
+local DETERMINISTIC_BASES_64 = {
+	2, 325, 9375, 28178, 450775, 9780504, 1795265022
+}
+
+-- modular exponentiation: a^e mod n
+local function powmod(a, e, n)
+	local result = ONE:clone()
+	local base = a % n
+	local exp = e:clone()
+
+	while exp > ZERO do
+		if not exp:isEven() then
+			result = (result * base) % n
+		end
+		exp = exp / TWO
+		base = (base * base) % n
+	end
+
+	return result
+end
+
+-- Miller-Rabin witness test
+local function millerRabinWitness(a, d, s, n, n_minus_1)
+	local x = powmod(a, d, n)
+
+	if x == ONE or x == n_minus_1 then
+		return false -- probably prime for this base
+	end
+
+	for _ = 1, s - 1 do
+		x = (x * x) % n
+		if x == n_minus_1 then
+			return false
+		end
+	end
+
+	return true -- composite
+end
+
+-- Determines if the hello_mpz number is probably prime. Uses Miller-Rabin.
+function hello_mpz:isProbablePrime(rounds)
+	-- handle small / trivial cases
+	if self < TWO then
+		return false
+	end
+
+	for _, p in ipairs(SMALL_PRIMES) do
+		local mp = hello_mpz.new(p)
+		if self == mp then
+			return true
+		end
+		if (self % mp) == ZERO then
+			return false
+		end
+	end
+
+	-- write n - 1 = d * 2^s
+	local d = self - ONE
+	local s = 0
+
+	while d:isEven() do
+		d = d / TWO
+		s += 1
+	end
+
+	local n_minus_1 = self - ONE
+
+	-- deterministic bases first
+	for _, a0 in ipairs(DETERMINISTIC_BASES_64) do
+		local a = hello_mpz.fromNumber(a0)
+		if a >= self then
+			break
+		end
+		if millerRabinWitness(a, d, s, self, n_minus_1) then
+			return false
+		end
+	end
+
+	-- probabilistic rounds (for large n)
+	local k = rounds or 8 -- 8 by default
+	for _ = 1, k do
+		-- random base: 2 <= a <= n-2
+		local a = hello_mpz.random(TWO, n_minus_1 - ONE)
+		if millerRabinWitness(a, d, s, self, n_minus_1) then
+			return false
+		end
+	end
+
+	return true
+end
+
+-- BAILLIE-PSW
+
+-- Jacobi symbol (a/n), n odd > 0
+local function jacobi(a, n)
+	local result = 1
+	local aa = a % n
+	
+	if aa < ZERO then
+		aa = aa + n
+	end
+	
+	local nn = n:clone()
+
+	while aa ~= ZERO do
+		while aa:isEven() do
+			aa = aa / TWO
+			local r = nn % EIGHT
+			if r == THREE or r == FIVE then
+				result = -result
+			end
+		end
+
+		aa, nn = nn, aa -- swap
+
+		if (aa % FOUR) == THREE
+			and (nn % FOUR) == THREE then
+			result = -result
+		end
+
+		aa = aa % nn
+	end
+
+	return nn == ONE and result or 0
+end
+
+-- Lucas sequence modulo n
+-- Computes U_k, V_k for parameters (P, Q)
+local function lucasUV(P, Q, k, n)
+	-- collect bits of k (LSB -> MSB)
+	local bits = {}
+	local kk = k:clone()
+
+	while kk > ZERO do
+		table_insert(bits, (kk % TWO) ~= ZERO)
+		kk = kk / TWO
+	end
+
+	local U = ZERO
+	local V = TWO
+	local Qk = ONE
+
+	local D = P * P - hello_mpz.new(4) * Q
+
+	for i = #bits, 1, -1 do
+		-- Doubling
+		local U2 = (U * V) % n
+		local V2 = (V * V - TWO * Qk) % n
+
+		U = U2
+		V = V2
+		Qk = (Qk * Qk) % n
+		
+		local INV2 = (n + ONE) / TWO
+
+		
+		-- Addition step if bit is set
+		if bits[i] then
+			local U1 = (P * U + V) * INV2 % n
+			local V1 = (D * U + P * V) * INV2 % n
+
+			U = U1
+			V = V1
+			Qk = (Qk * Q) % n
+		end
+	end
+
+	return U, V
+end
+
+-- Strong Lucas probable prime test (Selfridge)
+local function strongLucasSelfridge(n)
+	-- Step 1: choose D = 5, -7, 9, -11, ...
+	local D = FIVE:clone()
+	local sign = 1
+
+	while true do
+		local j = jacobi(D, n)
+		if j == -1 then
+			break
+		elseif j == 0 then
+			-- gcd(D, n) > 1
+			-- If n == |D|, n is prime
+			if n == D:abs() then
+				return true
+			end
+			return false
+		end
+
+		D = D:abs() + TWO
+		sign = -sign
+		D = D * hello_mpz.new(sign)
+	end
+
+	local P = ONE
+	local Q = (ONE - D) / FOUR
+
+	-- write n + 1 = d * 2^s
+	local d = n + ONE
+	local s = 0
+	while d:isEven() do
+		d = d / TWO
+		s += 1
+	end
+
+	local U, V = lucasUV(P, Q, d, n)
+	if U == ZERO or V == ZERO then
+		return true
+	end
+
+	local Qk = powmod(Q, d, n)
+
+	for _ = 1, s - 1 do
+		V = (V * V - TWO * Qk) % n
+		Qk = (Qk * Qk) % n
+		if V == ZERO then
+			return true
+		end
+	end
+
+	return false
+end
+
+-- Determines if the hello_mpz number is prime. Uses Baillie-PSW.
+function hello_mpz:isPrime()
+	if self < TWO then
+		return false
+	end
+	if self:isEven() then
+		return self == TWO
+	end
+
+	-- Miller–Rabin base 2
+	if powmod(TWO, self - ONE, self) ~= ONE then
+		return false
+	end
+
+	-- Strong Lucas test
+	return strongLucasSelfridge(self)
 end
 
 ----------------------------------------------------

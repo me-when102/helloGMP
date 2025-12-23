@@ -159,7 +159,7 @@ print("Chained:", c:abs():inv():neg())  -- -8/5
 
 ## 🔨 Performance Benchmarks (tested on helloGMP 1.1.0)
 
-All benchmarks were conducted in Roblox Studio with fixed seed (`123456`) and averaged over 3 iterations.  
+All benchmarks were conducted in Roblox Studio with fixed seed (`123456`) and 2000 iterations.  
 Test sizes correspond to digit lengths of numerator and denominator:
 
 - **Small:** 10‑digit numbers  
@@ -170,155 +170,63 @@ Test sizes correspond to digit lengths of numerator and denominator:
 
 | Operation        | Time (s) | µs/op |
 |------------------|----------|-------|
-| fromString       | 0.118386 | 59.193 |
-| fromNumber       | 0.064119 | 32.060 |
-| new / fromAny    | 0.060962 | 30.481 |
+| fromString       | 0.087607 | 43.803 |
+| fromNumber       | 0.040605 | 20.302 |
+| new / fromAny    | 0.038033 | 19.017 |
 
-### Core Arithmetic Operations
-
-#### **Small (10‑digit)**
+### Core Arithmetic (Small)
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
-| Addition  | 0.466694 | 233.347 |
-| Subtract  | 0.446772 | 223.386 |
-| Multiply  | 0.268668 | 134.334 |
-| Divide    | 0.400683 | 200.341 |
+| Addition  | 0.278119 | 139.059 |
+| Subtract  | 0.294282 | 147.141 |
+| Multiply  | 0.150999 | 75.499 |
+| Divide    | 0.242742 | 121.371 |
 
-#### **Medium (50‑digit)**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| Addition  | 3.330383 | 1665.192 |
-| Subtract  | 3.266719 | 1633.359 |
-| Multiply  | 1.878927 | 939.463 |
-| Divide    | 1.905796 | 952.898 |
-
-#### **Large (100‑digit)**
+### Core Arithmetic (Medium)
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
-| Addition  | 8.780678 | 4390.339 |
-| Subtract  | 9.588679 | 4794.340 |
-| Multiply  | 5.020431 | 2510.216 |
-| Divide    | 5.129610 | 2564.805 |
-> `hello_mpq` would almost time out here.
+| Addition  | 1.594309 | 797.154 |
+| Subtract  | 1.576426 | 788.213 |
+| Multiply  | 0.917311 | 458.656 |
+| Divide    | 0.946007 | 473.003 |
 
-### Mixed‑Size Arithmetic
-
-#### **Small + Medium**
+### Core Arithmetic (Large)
 
 | Operation | Time (s) | µs/op |
 |-----------|----------|-------|
-| Addition  | 1.860884 | 930.442 |
-| Subtract  | 1.906176 | 953.088 |
-| Multiply  | 1.387132 | 693.566 |
-| Divide    | 1.399157 | 699.578 |
+| Addition  | 4.110393 | 2055.196 |
+| Subtract  | 4.260924 | 2130.462 |
+| Multiply  | 2.371908 | 1185.954 |
+| Divide    | 2.270338 | 1135.169 |
 
-#### **Small + Large**
+### Mixed-Size Arithmetic
 
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| Addition  | 4.336058 | 2168.029 |
-| Subtract  | 4.383858 | 2191.929 |
-| Multiply  | 3.236797 | 1618.398 |
-| Divide    | 3.071640 | 1535.820 |
-
-#### **Medium + Large**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| Addition  | 6.266062 | 3133.031 |
-| Subtract  | 6.216346 | 3108.173 |
-| Multiply  | 4.239121 | 2119.561 |
-| Divide    | 4.567661 | 2283.830 |
+| Mix        | Add (s)  | Sub (s)  | Mul (s)  | Div (s)  |
+|------------|----------|----------|----------|----------|
+| Small+Medium | 1.860884 | 1.906176 | 1.387132 | 1.399157 |
+| Small+Large  | 4.336058 | 4.383858 | 3.236797 | 3.071640 |
+| Medium+Large | 6.266062 | 6.216346 | 4.239121 | 4.567661 |
 
 ### Utility Operations
 
-#### **Small**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| abs       | 0.003581 | 1.790 |
-| neg       | 0.003434 | 1.717 |
-| inv       | 0.149205 | 74.603 |
-| toString  | 0.003493 | 1.747 |
-
-#### **Medium**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| abs       | 0.003134 | 1.567 |
-| neg       | 0.006137 | 3.068 |
-| inv       | 1.068707 | 534.354 |
-| toString  | 0.010050 | 5.025 |
-
-#### **Large**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| abs       | 0.006630 | 3.315 |
-| neg       | 0.006015 | 3.007 |
-| inv       | 2.575326 | 1287.663 |
-| toString  | 0.020145 | 10.072 |
+| Size   | abs (s) | neg (s) | inv (s) | toString (s) | toNumber (s) |
+|--------|---------|---------|---------|--------------|--------------|
+| Small  | 0.002299 | 0.002365 | 0.073428 | 0.002980 | 0.003051 |
+| Medium | 0.002814 | 0.002849 | 0.504785 | 0.018566 | 0.019279 |
+| Large  | 0.003830 | 0.003905 | 1.082658 | 0.014894 | 0.016878 |
 
 ### Comparison Operations
 
-#### **Small**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000517 | 0.258 |
-| __lt      | 0.009273 | 4.636 |
-| __le      | 0.007580 | 3.790 |
-| compare   | 0.006550 | 3.275 |
-
-#### **Medium**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000866 | 0.433 |
-| __lt      | 0.027164 | 13.582 |
-| __le      | 0.021925 | 10.963 |
-| compare   | 0.024239 | 12.120 |
-
-#### **Large**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000487 | 0.244 |
-| __lt      | 0.035024 | 17.512 |
-| __le      | 0.033829 | 16.915 |
-| compare   | 0.035937 | 17.968 |
-
-### Mixed‑Size Comparisons
-
-#### **Small + Medium**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000537 | 0.268 |
-| __lt      | 0.010636 | 5.318 |
-| __le      | 0.011114 | 5.557 |
-| compare   | 0.012394 | 6.197 |
-
-#### **Small + Large**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000402 | 0.201 |
-| __lt      | 0.018084 | 9.042 |
-| __le      | 0.013973 | 6.987 |
-| compare   | 0.014997 | 7.499 |
-
-#### **Medium + Large**
-
-| Operation | Time (s) | µs/op |
-|-----------|----------|-------|
-| __eq      | 0.000421 | 0.211 |
-| __lt      | 0.024371 | 12.185 |
-| __le      | 0.026808 | 13.404 |
-| compare   | 0.024463 | 12.231 |
+| Size   | __eq (s) | __lt (s) | __le (s) | compare (s) |
+|--------|----------|----------|----------|-------------|
+| Small  | 0.000517 | 0.009273 | 0.007580 | 0.006550 |
+| Medium | 0.000866 | 0.027164 | 0.021925 | 0.024239 |
+| Large  | 0.000487 | 0.035024 | 0.033829 | 0.035937 |
+| Small+Medium | 0.000537 | 0.010636 | 0.011114 | 0.012394 |
+| Small+Large  | 0.000402 | 0.018084 | 0.013973 | 0.014997 |
+| Medium+Large | 0.000421 | 0.024371 | 0.026808 | 0.024463 |
 
 ## 🔨 Time Complexity Benchmark
 
@@ -334,6 +242,6 @@ Two test sizes are used:
 - **5000-digit numerator/denominator**
 
 | Digits | Construction & GCD | LCD Addition | Cross‑Simplify Multiply | Total Time |
-|--------|---------------------|--------------|--------------------------|-------------|
-| **500**  | 0.0149s             | 0.0229s      | 0.0191s                  | 0.0569s     |
-| **5000** | 0.9911s             | 1.6284s      | 1.2544s                  | 3.8740s     |
+|--------|------------------|--------------|------------------------|------------|
+| **500**  | 0.0066s          | 0.0095s      | 0.0074s                | 0.0234s    |
+| **5000** | 0.4161s          | 0.5771s      | 0.4275s                | 1.4208s    |

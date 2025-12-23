@@ -161,6 +161,24 @@ for _, size in ipairs(sizes) do
 end
 
 ---------------------------------------------------------------------
+-- Benchmark: Raw Compare Function
+---------------------------------------------------------------------
+print("=== Benchmarking Raw Compare ===")
+
+for _, size in ipairs({"small", "medium", "large"}) do
+	local data = test_data[size]
+	print("Testing " .. size .. " raw compare...")
+
+	local t = time_avg(function()
+		for i = 1, #data - 1 do
+			local _ = hello_mpz.compare(data[i], data[i + 1])
+		end
+	end, config.iterations)
+
+	record("Comparison", "Raw compare()", size, t)
+end
+
+---------------------------------------------------------------------
 -- Benchmark: Conversions
 ---------------------------------------------------------------------
 print("=== Benchmarking Conversions ===")
@@ -340,6 +358,34 @@ for _, test in ipairs(iter_tests) do
 		end
 	end, 1)
 	record("Iterator", "range iteration", test.name, t)
+end
+
+---------------------------------------------------------------------
+-- Benchmark: Primality Tests
+---------------------------------------------------------------------
+print("=== Benchmarking Primality Tests ===")
+
+-- We only test small/medium/large because huge primality tests
+-- would be extremely expensive and not representative.
+for _, size in ipairs({"small", "medium", "large"}) do
+	local data = test_data[size]
+	print("Testing " .. size .. " primality tests...")
+
+	-- isPrime()  (Baillie–PSW)
+	local t = time_avg(function()
+		for i = 1, math.min(20, #data) do
+			local _ = data[i]:isPrime()
+		end
+	end, config.iterations)
+	record("Primality", "isPrime (BPSW)", size, t)
+
+	-- isProbablePrime()  (Miller–Rabin)
+	t = time_avg(function()
+		for i = 1, math.min(20, #data) do
+			local _ = data[i]:isProbablePrime(8)
+		end
+	end, config.iterations)
+	record("Primality", "isProbablePrime (MR)", size, t)
 end
 
 ---------------------------------------------------------------------

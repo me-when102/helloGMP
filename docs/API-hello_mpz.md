@@ -496,93 +496,99 @@ local parsed = hello_mpz.fromBase("DEC#12345678901234567890", 10, "0123456789", 
 print("Custom parse matches?", parsed == medium)             -- true
 ```
 
-## 🔨 Performance Benchmarks (Tested in helloGMP 1.0.0)
+## 🔨 Performance Benchmarks (Tested in helloGMP 1.2.0)
 
-All benchmarks conducted in Roblox Studio with fixed seed (123456) and averaged over 3 iterations.
+All benchmarks were conducted in Roblox Studio with fixed seed (`123456`) and averaged over 3 iterations.
 
 **Test data sizes:**
-- **Small**: 10-digit numbers
-- **Medium**: 50-digit numbers  
-- **Large**: 100-digit numbers
+- **Small**: 10‑digit numbers  
+- **Medium**: 50‑digit numbers  
+- **Large**: 100‑digit numbers  
 
 ### Core Arithmetic Operations
 
 | Operation      | Small       | Medium      | Large       |
 |----------------|-------------|-------------|-------------|
-| Addition       | 0.000198s  | 0.000164s  | 0.000245s  |
-| Subtraction    | 0.000250s  | 0.000236s  | 0.000304s  |
-| Multiplication | 0.000051s  | 0.000105s  | 0.000156s  |
-| Division       | 0.000059s  | 0.000073s  | 0.000069s  |
-| Modulo         | 0.000102s  | 0.000107s  | 0.000065s  |
-| Power (^5 or similar) | 0.000201s | 0.000568s | 0.001819s |
+| Addition       | 0.000056s  | 0.000150s  | 0.000163s  |
+| Subtraction    | 0.000147s  | 0.000233s  | 0.000306s  |
+| Multiplication | 0.000017s  | 0.000086s  | 0.000091s  |
+| Division       | 0.000025s  | 0.000045s  | 0.000039s  |
+| Modulo         | 0.000037s  | 0.000032s  | 0.000044s  |
+| Power (^5)     | 0.000092s  | 0.000224s  | 0.001064s  |
 
 ### Comparisons
 
 | Operation             | Small       | Medium      | Large       |
 |-----------------------|-------------|-------------|-------------|
-| Equality & Ordering   | 0.000089s  | 0.000100s  | 0.000067s  |
+| Equality & Ordering   | 0.000062s  | 0.000068s  | 0.000068s  |
+| Raw `compare()`       | 0.000010s  | 0.000018s  | 0.000040s  |
 
 ### String Conversions
 
 | Operation      | Small       | Medium      | Large       |
 |----------------|-------------|-------------|-------------|
-| toString       | 0.000095s  | 0.000258s  | 0.000496s  |
-| toScientific   | 0.000099s  | 0.000265s  | 0.000424s  |
-| toHex          | 0.000418s  | 0.001770s  | 0.004603s  |
-| toBinary       | 0.000516s  | 0.003333s  | 0.007681s  |
+| toString       | 0.000111s  | 0.000236s  | 0.000476s  |
+| toScientific   | 0.000121s  | 0.000330s  | 0.000413s  |
+| toHex          | 0.000279s  | 0.001478s  | 0.003325s  |
+| toBinary       | 0.000394s  | 0.002327s  | 0.005756s  |
 
-### Number Theory Functions
+### Number Theory
 
 | Operation | Small       | Medium      |
 |-----------|-------------|-------------|
-| GCD       | 0.001438s  | 0.008831s  |
-| LCM       | 0.001385s  | 0.009246s  |
+| GCD       | 0.000833s  | 0.005116s  |
+| LCM       | 0.000748s  | 0.004755s  |
 
 ### Factorials
 
 | Operation       | Time        |
 |-----------------|-------------|
-| 50!             | 0.000306s  |
-| 100!            | 0.000379s  |
-| 200!            | 0.001116s  |
-| 50!! (double)   | 0.000235s  |
-| 100!!           | 0.000332s  |
-| 200!!           | 0.000906s  |
+| 50!             | 0.000288s  |
+| 100!            | 0.000451s  |
+| 200!            | 0.001055s  |
+| 50!!            | 0.000179s  |
+| 100!!           | 0.000312s  |
+| 200!!           | 0.000684s  |
 
 ### Combinatorics
 
 | Operation       | Time        |
 |-----------------|-------------|
-| C(100, 10)      | 0.000079s  |
-| C(1000, 50)     | 0.000356s  |
-| C(5000, 100)    | 0.000644s  |
-| P(100, 10)      | 0.000078s  |
-| P(1000, 50)     | 0.000188s  |
-| P(5000, 100)    | 0.000477s  |
+| C(100, 10)      | 0.000063s  |
+| C(1000, 50)     | 0.000350s  |
+| C(5000, 100)    | 0.000645s  |
+| P(100, 10)      | 0.000025s  |
+| P(1000, 50)     | 0.000187s  |
+| P(5000, 100)    | 0.000380s  |
 
 ### Root Operations
 
 | Operation       | Small       | Medium      | Large        |
 |-----------------|-------------|-------------|--------------|
-| Square Root     | 0.002671s  | 0.024324s  | 0.075816s   |
-| Cube Root       | 0.003131s  | 0.032635s  | 0.103542s   |
+| Square Root     | 0.001977s  | 0.015561s  | 0.044447s   |
+| Cube Root       | 0.002320s  | 0.018844s  | 0.059184s   |
 
-> **Note:** Higher-order roots are computationally intensive due to repeated high-precision exponentiation and division in the Newton iteration.
+### Primality Testing
+
+| Operation              | Small       | Medium      | Large       |
+|------------------------|-------------|-------------|-------------|
+| isPrime (BPSW)         | 0.002705s  | 0.053526s  | 0.063283s  |
+| isProbablePrime (MR)   | 0.002944s  | 0.109133s  | 0.000193s  |
 
 ### Random Number Generation
 
 | Range Size      | Time        |
 |-----------------|-------------|
-| Small           | 0.000116s  |
-| Medium          | 0.000073s  |
-| Large           | 0.000105s  |
+| Small           | 0.000105s  |
+| Medium          | 0.000077s  |
+| Large           | 0.000102s  |
 
 ### Iterator Performance
 
 | Range           | Time        |
 |-----------------|-------------|
-| 1 to 1,000      | 0.000741s  |
-| 1 to 10,000     | 0.007308s  |
+| 1 to 1,000      | 0.000588s  |
+| 1 to 10,000     | 0.005831s  |
 
 ## ⚒️ Benchmark for Computation Capability
 
@@ -634,50 +640,52 @@ Performance testing conducted in Roblox Studio with fixed seed (`123456`), avera
 #### Operation Performance
 
 | Operation       | Size   | helloGMP     | APInt        | Speedup          |
-|-----------------|--------|--------------|--------------|------------------|
-| **Division**    | Small  | 0.001455s   | 0.017752s   | **12.2×**        |
-|                 | Large  | 0.002239s   | 0.046516s   | **20.8×** 🔥     |
-|                 | Mixed  | 0.001050s   | 0.020059s   | **19.1×**        |
-| **Modulo**      | Small  | 0.001440s   | 0.018080s   | **12.6×**        |
-|                 | Large  | 0.002244s   | 0.046159s   | **20.6×** 🔥     |
-|                 | Mixed  | 0.000957s   | 0.019746s   | **20.6×**        |
-| **Multiplication** | Small  | 0.001115s | 0.003450s   | **3.1×**         |
-|                 | Large  | 0.001891s   | 0.003856s   | **2.0×**         |
-|                 | Mixed  | 0.001411s   | 0.003721s   | **2.6×**         |
-| **toString**    | Small  | 0.000183s   | 0.000888s   | **4.9×**         |
-|                 | Large  | 0.000253s   | 0.001552s   | **6.1×**         |
-| **Addition**    | Small  | 0.022490s   | 0.032313s   | **1.4×**         |
-|                 | Large  | 0.029590s   | 0.034350s   | **1.2×**         |
-|                 | Mixed  | 0.027622s   | 0.033654s   | **1.2×**         |
-| **Subtraction** | Small  | 0.048052s   | 0.091559s   | **1.9×**         |
-|                 | Large  | 0.067121s   | 0.096733s   | **1.4×**         |
-|                 | Mixed  | 0.058459s   | 0.102195s   | **1.7×**         |
-| **Equality (==)** | Small  | 0.005162s | 0.007807s   | **1.5×**         |
-|                 | Large  | 0.005041s   | 0.006425s   | **1.3×**         |
-|                 | Mixed  | 0.005502s   | 0.006931s   | **1.3×**         |
-| **Comparison (<)** | Small  | 0.006800s | 0.020627s   | **3.0×**         |
-|                 | Large  | 0.006663s   | 0.020261s   | **3.0×**         |
-|                 | Mixed  | 0.006634s   | 0.020278s   | **3.1×**         |
+|-----------------|--------|--------------|--------------|-----------------|
+| **Division**    | Small  | 0.000625s    | 0.007017s    | **11.2×**       |
+|                 | Large  | 0.000684s    | 0.051168s    | **74.7×** 🔥     |
+|                 | Mixed  | 0.000267s    | 0.006506s    | **24.4×**       |
+| **Modulo**      | Small  | 0.000485s    | 0.006802s    | **14.0×**       |
+|                 | Large  | 0.000559s    | 0.048798s    | **87.3×** 🔥     |
+|                 | Mixed  | 0.000383s    | 0.006554s    | **17.1×**       |
+| **Multiplication** | Small | 0.000357s   | 0.001210s    | **3.4×**        |
+|                 | Large  | 0.000454s    | 0.001183s    | **2.6×**        |
+|                 | Mixed  | 0.000324s    | 0.001412s    | **4.4×**        |
+| **toString**    | Small  | 0.000111s    | 0.000573s    | **5.2×**        |
+|                 | Large  | 0.000110s    | 0.000917s    | **8.3×**        |
+| **Addition**    | Small  | 0.006429s    | 0.011786s    | **1.8×**        |
+|                 | Large  | 0.008455s    | 0.012502s    | **1.5×**        |
+|                 | Mixed  | 0.008327s    | 0.012614s    | **1.5×**        |
+| **Subtraction** | Small  | 0.012717s    | 0.033553s    | **2.6×**        |
+|                 | Large  | 0.016443s    | 0.035985s    | **2.2×**        |
+|                 | Mixed  | 0.015973s    | 0.037255s    | **2.3×**        |
+| **Equality (==)** | Small | 0.001563s    | 0.003034s    | **1.9×**        |
+|                 | Large  | 0.001462s    | 0.002353s    | **1.6×**        |
+|                 | Mixed  | 0.001556s    | 0.002654s    | **1.7×**        |
+| **Comparison (<)** | Small | 0.001977s    | 0.007434s    | **3.8×**        |
+|                 | Large  | 0.001877s    | 0.007568s    | **4.0×**        |
+|                 | Mixed  | 0.001869s    | 0.007322s    | **3.9×**        |
 
 #### Constructor Performance
 
 | Number Size     | helloGMP     | APInt        | Notes                        |
 |-----------------|--------------|--------------|------------------------------|
-| Small           | 0.000413s   | 0.000143s   | APInt **~2.9× faster**       |
-| Large           | 0.000431s   | 0.000317s   | APInt **~1.4× faster**       |
+| Small           | 0.000108s    | 0.000088s    | APInt slightly faster (~1.2×) |
+| Large           | 0.000115s    | 0.000184s    | helloGMP slightly faster (~1.6×) |
 
 > **Constructor tradeoff:** APInt has lower overhead for small number construction, while helloGMP's asymptotically efficient algorithm becomes faster as numbers grow larger. 
 
 ### Key Takeaways
 
-**HelloGMP advantages:**
-- **Division and modulo operations**: 18-24× faster across all sizes
-- **String conversions**: 6-9× faster
-- **All arithmetic operations**: Consistently faster, especially on larger numbers
+**HelloGMP:**
+- **Division and modulo operations**: Dramatically faster, especialy on large numbers (up to ~87× faster).
+- **Multiplication**: 2-4× faster across most sizes.
+- **String conversions (`toString`)**: 5-8× faster.
+- **All arithmetic operations**: Consistently faster on both small and large numbers, with the biggest gains on large number.
 
-**APInt advantages:**
+**APInt:**
 - **Compactness**: Smaller codebase (~553 lines vs ~2000 lines)
-- **Constructor speed**: Slightly faster constructor for small numbers
+- **Constructor speed**: Slightly faster for small numbers (~1.2× faster)
+- **Small-number equality and addition**: Competitive performance in very small arithmetic operations.
 
 ---
 
