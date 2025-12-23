@@ -622,7 +622,7 @@ This benchmark demonstrates the practical upper bound of exponentiation in Luau 
 
 **HelloGMP's** `hello_mpz` module builds upon the excellent work of libraries like [APInt](https://github.com/CrabGuy/APInt) (by [CrabGuy](https://github.com/CrabGuy)) in bringing arbitrary precision arithmetic to Roblox. We're grateful for their contributions to the ecosystem.
 
-### Head-to-Head Benchmark: helloGMP vs APInt
+### Head-to-Head Benchmark: helloGMP vs APInt (Outdated)
 
 Performance testing conducted in Roblox Studio with fixed seed (`123456`), averaged over 3 iterations.
 

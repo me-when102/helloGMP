@@ -1,6 +1,8 @@
 -- comment directives, may be removed if currently debugging, insert a space to disable
 --!nolint
 --!nocheck
+--!native
+--!optimize 2
 
 -- hello_mpz, big integer module of the helloGMP library
 
@@ -8,6 +10,7 @@ local base_settings = require(script.Parent.base_settings)
 local hello_mpz = {}
 
 local setting_mode = base_settings.MODE
+local strict = "strict"
 
 -- sure
 hello_mpz.__index = hello_mpz
@@ -24,6 +27,7 @@ local BASE_DIGS = math.log10(BASE)
 
 local string_rep = string.rep
 local string_format = string.format
+local string_byte = string.byte
 
 -- math functions
 
@@ -63,7 +67,7 @@ local rawequal = rawequal
 local MPZ_MT = getmetatable(setmetatable({}, hello_mpz))
 
 ----------------------------------------------------
--- Main Constructor System
+-- Raw Constructor System
 ----------------------------------------------------
 
 -- Create a new bigint from sign, limbs (little-endian table)
@@ -80,6 +84,19 @@ local function trim(t)
 	if #l == 1 and l[1] == 0 then t.sign = 0 end
 	return t
 end
+
+----------------------------------------------------
+-- Pre-computed / Constant Numbers
+-- Cached numbers to speed up performance a little.
+-- Additionally construct using the raw constructor as micro-optimization set up
+----------------------------------------------------
+local ZERO = make(0, {0})
+local ONE = make(1, {1})
+local TWO = make(1, {2})
+
+----------------------------------------------------
+-- Main Constructor System
+----------------------------------------------------
 
 -- normalize to ensure limbs < BASE and no negative limbs
 -- Normalize limbs so that:
@@ -139,42 +156,63 @@ local function require_mpz(v, name)
 	end
 end
 
+local BYTE_0 = string_byte("0")
+local BYTE_9 = string_byte("9")
+
 -- Constructs the hello_mpz number with optional leading + or - from the given string.
 function hello_mpz.fromString(s)
-	assert(type(s) == "string", "Expected string, got "..type(s))
+	assert(type(s) == "string", "Expected string, got " .. type(s))
+
+	local len = #s
+	if len == 0 then
+		return ZERO   -- or your ZERO constant if available
+	end
 
 	local i = 1
 	local sign = 1
-	if s:sub(1,1) == '+' then
+	local first = string_byte(s, 1)
+	if first == string_byte("+") then
 		i = 2
-	elseif s:sub(1,1) == '-' then
+	elseif first == string_byte("-") then
 		sign = -1
 		i = 2
 	end
 
-	-- strip leading zeros
-	s = s:sub(i):gsub("^0+", "")
-
-	-- default to zero if s = empty string
-	if s == '' then return make(0, {0}) end -- ZERO is not available in this scope
-
-	-- strict validation: only digits allowed
-	assert(s:match("^%d+$") or setting_mode ~= "strict", "Invalid string: contains non-digit characters ("..s..")")
-
-	local limbs = {}
-	local p = #s
-	while p > 0 do
-		local starti = math_max(1, p - BASE_DIGS + 1)
-		local chunk = tonumber(s:sub(starti, p))
-
-		-- assert chunk (should never fail if validation passed)
-		assert(chunk ~= nil or setting_mode ~= "strict", "Invalid numeric chunk at position "..starti.."-"..p)
-
-		table_insert(limbs, chunk)
-		p = starti - 1
+	-- Find first non-zero digit (manual strip leading zeros + basic validation)
+	local start_pos = i
+	while start_pos <= len and setting_mode == strict do
+		local b = string_byte(s, start_pos)
+		if b < BYTE_0 or b > BYTE_9 then
+			assert(setting_mode ~= strict, "Invalid character in string, got " .. type(b))
+			return ZERO   -- or error
+		end
+		if b ~= BYTE_0 then break end
+		start_pos += 1
 	end
 
-	normalize_limbs(limbs)
+	if start_pos > len then
+		return ZERO
+	end
+
+	local limbs = {}
+	local p = len
+
+	while p >= start_pos do
+		local chunk_start = math_max(start_pos, p - BASE_DIGS + 1)
+		local chunk = tonumber(s:sub(chunk_start, p))
+		assert(chunk ~= nil or setting_mode ~= strict, "Invalid chunk")
+
+		table_insert(limbs, chunk)  -- Always insert, order is high-to-low or low-to-high depending on your convention
+
+		p = chunk_start - 1
+	end
+
+	-- If we skipped all high zeros, limb_idx will be correct
+	if #limbs == 0 then
+		return ZERO
+	end
+	
+	-- Actual construction
 	local t = make(sign, limbs)
 	trim(t)
 	return t
@@ -311,15 +349,6 @@ end
 function hello_mpz.__unm(a)
 	return a:neg()
 end
-
-----------------------------------------------------
--- Pre-computed / Constant Numbers
--- Cached numbers to speed up performance a little.
--- Additionally construct using the raw constructor as micro-optimization set up
-----------------------------------------------------
-local ZERO = make(0, {0})
-local ONE = make(1, {1})
-local TWO = make(1, {2})
 
 ----------------------------------------------------
 -- Base Representation System
