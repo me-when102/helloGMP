@@ -62,6 +62,9 @@ For clarity, the following complexity notation is used throughout:
 - **Other Mathematical Functions**:
     - `GCD(a, b)` → Binary GCD (Stein's algorithm), `O(m log n)`
     - `LCM(a, b)` → via GCD + division + multiplication, dominated by `O(m^2)`
+- **Primality Tests**:
+    - `:isPrime()` → Baillie-PSW algorithm, `O((log n)^3)`
+    - `:isProbablePrime(k)` → Miller-Rabin algorithm, `O(k * (log n)^3)`
 - **Factorials**:
     - `factorial()` → Computes n! using binary splitting, `O(n · m^1.585)` (Karatsuba path)
     - `doubleFactorial()` → Computes n!! with step 2, `O(n * m^1.585)`
