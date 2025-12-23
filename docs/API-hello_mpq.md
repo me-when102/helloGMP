@@ -157,7 +157,7 @@ print("Chained:", c:abs():inv():neg())  -- -8/5
 ```
 
 
-## 🔨 Performance Benchmarks (tested on helloGMP 1.1.0)
+## 🔨 Performance Benchmarks (tested on helloGMP 1.2.0)
 
 All benchmarks were conducted in Roblox Studio with fixed seed (`123456`) and 2000 iterations.  
 Test sizes correspond to digit lengths of numerator and denominator:
