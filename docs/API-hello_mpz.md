@@ -8,12 +8,13 @@ For clarity, the following complexity notation is used throughout:
 - `n` → size of input value (e.g., number of digits)
 - `m` → number of limbs in the big integer
 - `len(s)` → length of input string
+- `L` → number of limbs in the largest operand; comparisons may early-exit on differing limb counts.
 
 ### Available Features
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, `//`, `%`, `^`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`  
   (`>` and `>=` are inherited from `__lt` and `__le`)
-- `.compare(a, b)` function to return `1`, `0`, or `-1` results. (1.1.0)
+- `.compare(a, b)` → `O(L)` -  function to return `1`, `0`, or `-1` results. (1.1.0)
 
 - **Core Constructors & Conversions**
   - `hello_mpz.new(x)` → `O(len(s))` from string, `O(log n)` from number - Unified constructor (string or number)  
@@ -27,14 +28,17 @@ For clarity, the following complexity notation is used throughout:
   - `__tostring` → `O(m)` - Metamethod for `tostring()`/`print()` (same as `:toString()`)
 
 - **Utilities**
-  - `:clone()` → `O(n)` - Creates a deep copy of the integer  
+  - `:clone()` → `O(m)` - Creates a deep copy of the integer  
   - `:isEven()` → `O(1)` - Checks if the integer is divisible by 2  
   - `:isOdd()` → `O(1)` - Checks if the integer is not divisible by 2  
-  - `:abs()` → `O(n)` - Returns the absolute value of the integer  
-  - `:neg()` → `O(n)` - Returns the negated value (unary minus, `__unm`)  
+  - `:abs()` → `O(m)` - Returns the absolute value of the integer  
+  - `:neg()` → `O(m)` - Returns the negated value (unary minus, `__unm`)  
   - `:isZero()` → `O(1)` - Tests whether the integer equals zero  
   - `:isPositive()` → `O(1)` - Tests whether the integer is strictly greater than zero  
   - `:isNegative()` → `O(1)` - Tests whether the integer is strictly less than zero  
+  - `.max(x, ...)` → `O(n * L)` - Returns the maximum value in the given values
+  - `.min(x, ...)` → `O(n * L)` - Returns the minimum value in the given values
+  - `.clamp(x, min, max)` → `O(L)` - Clamps x to the inclusive range [min, max]
 
 - **Multiplication algorithms**:
     - Schoolbook → `O(n^2)`  
@@ -306,6 +310,14 @@ print(":isNegative()", num:isNegative())   -- true
 local copy = num:clone()
 print(":clone()" copy == num)        -- true (different object)
 
+-- min, max, and clamp
+local a = hello_mpz.new("42")
+local b = hello_mpz.new("100")
+local c = hello_mpz.new("-7")
+
+print(hello_mpz.min(a, b, c)) -- -7
+print(hello_mpz.max(a, b, c)) -- 100
+print(hello_mpz.clamp(a, c, b)) -- 42
 ```
 
 ### Number Theory Functions
