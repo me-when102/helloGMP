@@ -146,14 +146,15 @@ end
 -- Returns two values: intPart and fracPart
 function hello_mpq:toMixedRational()
 	local intPart, remainder = hello_mpz.divmod(self.num, self.den)
-
+	local absDen = self.den:abs()
+	
 	-- Ensure the proper fraction numerator is positive
 	if remainder:isNegative() then
-		remainder = remainder + self.den:abs()
+		remainder = remainder + absDen
 		intPart = intPart - 1
 	end
 
-	local fracPart = hello_mpq.new(remainder, self.den:abs())
+	local fracPart = hello_mpq.new(remainder, absDen)
 	return intPart, fracPart
 end
 
