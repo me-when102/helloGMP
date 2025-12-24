@@ -15,6 +15,7 @@ The `hello_mpq` module is one of the main libraries of the **helloGMP** library 
   - `:toString()` → Convert rational to string
   - `__tostring` → Metamethod of `:toString()`
   - `:toNumber()` → Convert rational to approximate native lua number. Can lose precision.
+  - `:toMixedRational()` → Convert rational to a mixed rational, returning two values: Integer part, and fractional part.
 
 - **Utilities**
   - `:abs()` - Returns the absolute value of the rational.
@@ -33,7 +34,7 @@ The `hello_mpq` module is one of the main libraries of the **helloGMP** library 
 ### Construction and Representation
 
 ```lua
-local hello_mpq = require(path.to.hello_mpq)
+local hello_mpq = require(game.ReplicatedStorage.helloGMP.hello_mpq)
 
 -- this is going to be timed, construction and normalization is slower here
 local t = os.clock()
@@ -77,6 +78,17 @@ print("c (to number):", c:toNumber())
 print("d (to number):", d:toNumber())
 print("e (to number):", e:toNumber())
 print("f (to number):", f:toNumber())
+
+-- to mixed rational
+local p1 = hello_mpq.new("432178904321804321", "7777")
+local p2 = hello_mpq.new("432143214", "54325")
+local p3 = hello_mpq.new("65436543", "1234")
+local p4 = hello_mpq.new("76547654", "65423")
+
+print("p1 (to mixed rational):", p1:toMixedRational())
+print("p2 (to mixed rational):", p2:toMixedRational())
+print("p3 (to mixed rational):", p3:toMixedRational())
+print("p4 (to mixed rational):", p4:toMixedRational())
 
 print("took ".. tostring(os.clock() - t) .. " seconds") -- should take less than 0.01 seconds on modern hardware
 ```
@@ -211,11 +223,11 @@ Test sizes correspond to digit lengths of numerator and denominator:
 
 ### Utility Operations
 
-| Size   | abs (s) | neg (s) | inv (s) | toString (s) | toNumber (s) |
-|--------|---------|---------|---------|--------------|--------------|
-| Small  | 0.002299 | 0.002365 | 0.073428 | 0.002980 | 0.003051 |
-| Medium | 0.002814 | 0.002849 | 0.504785 | 0.018566 | 0.019279 |
-| Large  | 0.003830 | 0.003905 | 1.082658 | 0.014894 | 0.016878 |
+| Size   | abs (s) | neg (s) | inv (s) | toString (s) | toNumber (s) | toMixedRational() |
+|--------|---------|---------|---------|--------------|--------------|-------------------|
+| Small  | 0.002299 | 0.002365 | 0.073428 | 0.002980 | 0.003051 | 0.073754 |
+| Medium | 0.002814 | 0.002849 | 0.504785 | 0.018566 | 0.019279 | 0.517721 |
+| Large  | 0.003830 | 0.003905 | 1.082658 | 0.014894 | 0.016878 | 1.190233 |
 
 ### Comparison Operations
 

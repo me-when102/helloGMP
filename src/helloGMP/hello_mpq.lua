@@ -39,9 +39,9 @@ local TWO = hello_mpz.fromString("2")
 -- Constructor
 ----------------------------------------------------
 -- create a new bigrational from two bigint limbs (little-endian table)
-local function make(nom, den)
+local function make(num, den)
 	return setmetatable({
-		nom = nom, -- hello_mpz number
+		num = num, -- hello_mpz number
 		den = den -- hello_mpz number
 	}, hello_mpq)
 end
@@ -65,7 +65,7 @@ end
 
 local function require_mpq(v, name)
 	if getmetatable(v) ~= MPQ_MT then
-		error(name .. " must be a hello_mpq instance. Use hello_mpq.new(nom, den) to convert.", 3)
+		error(name .. " must be a hello_mpq instance. Use hello_mpq.new(num, den) to convert.", 3)
 	end
 end
 
@@ -78,12 +78,12 @@ local function normalize(q)
 
 	-- if denominator < 0, flip both
 	if q.den.sign < 0 then
-		q.nom = -q.nom
+		q.num = -q.num
 		q.den = -q.den
 	end
 
 	-- zero numerator == zero
-	if q.nom:isZero() then
+	if q.num:isZero() then
 		q.den = ONE:clone()
 		return q
 	end
@@ -91,26 +91,26 @@ local function normalize(q)
 	if q.den == ONE then return q end -- Skip GCD if denominator is already 1
 	
 	-- GCD reduction
-	local g = mpz_GCD(q.nom, q.den)
+	local g = mpz_GCD(q.num, q.den)
 	if g ~= ONE then
 		-- simplification
-		q.nom = q.nom // g
+		q.num = q.num // g
 		q.den = q.den // g
 	end
 
 	return q
 end
 
--- Constructs a hello_mpq rational from nominator and denominator strings.
-function hello_mpq.fromString(nom, den)
-	local n = hello_mpz.fromString(nom)
+-- Constructs a hello_mpq rational from numerator and denominator strings.
+function hello_mpq.fromString(num, den)
+	local n = hello_mpz.fromString(num)
 	local d = hello_mpz.fromString(den)
 	return normalize(make(n, d))
 end
 
--- Constructs a hello_mpq rational from nominator and denominator native lua numbers
-function hello_mpq.fromNumber(nom, den)
-	local n = hello_mpz.fromNumber(nom)
+-- Constructs a hello_mpq rational from numerator and denominator native lua numbers
+function hello_mpq.fromNumber(num, den)
+	local n = hello_mpz.fromNumber(num)
 	local d = hello_mpz.fromNumber(den)
 	return normalize(make(n, d))
 end
@@ -120,17 +120,17 @@ end
 function hello_mpq:toString()
 
 	-- print "0" if numerator == 0
-	if self.nom:isZero() then
+	if self.num:isZero() then
 		return "0"
 	end
 
 	-- if Denominator == 1 then just print out the numerator
 	if self.den == ONE then
-		return tostring(self.nom)
+		return tostring(self.num)
 	end
 
 	-- general representation
-	return tostring(self.nom) .. "/" .. tostring(self.den)
+	return tostring(self.num) .. "/" .. tostring(self.den)
 end
 
 -- Converts the hello_mpq rational into a string.
@@ -139,7 +139,22 @@ hello_mpq.__tostring = hello_mpq.toString
 -- Converts the hello_mpq rational into a native lua number.
 -- warning: converting it into a native lua number can guarantee loss of precision when it is a recurring decimal.
 function hello_mpq:toNumber()
-	return tonumber(self.nom:toNumber() / self.den:toNumber())
+	return tonumber(self.num:toNumber() / self.den:toNumber())
+end
+
+-- Converts the hello_mpq rational into a mixed fraction.
+-- Returns two values: intPart and fracPart
+function hello_mpq:toMixedRational()
+	local intPart, remainder = hello_mpz.divmod(self.num, self.den)
+
+	-- Ensure the proper fraction numerator is positive
+	if remainder:isNegative() then
+		remainder = remainder + hello_mpz.abs(self.den)
+		intPart = intPart - 1
+	end
+
+	local fracPart = hello_mpq.new(remainder, hello_mpz.abs(self.den))
+	return intPart, fracPart
 end
 
 ----------------------------------------------------
@@ -154,11 +169,11 @@ function hello_mpq.__add(q1, q2)
 	
 	-- Same denominator shortcut (often occurs	 in loops or series)
 	if q1.den == q2.den then
-		return normalize(make(q1.nom + q2.nom, q1.den:clone()))
+		return normalize(make(q1.num + q2.num, q1.den:clone()))
 	end
 
-	local n1, d1 = q1.nom, q1.den
-	local n2, d2 = q2.nom, q2.den
+	local n1, d1 = q1.num, q1.den
+	local n2, d2 = q2.num, q2.den
 
 	local g = mpz_GCD(d1, d2)
 
@@ -184,8 +199,8 @@ function hello_mpq.__sub(q1, q2)
 	require_mpq(q1, "Left operand")
 	require_mpq(q2, "Right operand")
 	
-	local n1, d1 = q1.nom, q1.den
-	local n2, d2 = q2.nom, q2.den
+	local n1, d1 = q1.num, q1.den
+	local n2, d2 = q2.num, q2.den
 
 	local g = mpz_GCD(d1, d2)
 
@@ -209,8 +224,8 @@ function hello_mpq.__mul(q1, q2)
 	require_mpq(q1, "Left operand")
 	require_mpq(q2, "Right operand")
 	
-	local n1, d1 = q1.nom, q1.den
-	local n2, d2 = q2.nom, q2.den
+	local n1, d1 = q1.num, q1.den
+	local n2, d2 = q2.num, q2.den
 
 	-- simplify n1 with d2 and n2 with d1
 	local g1 = mpz_GCD(n1, d2)
@@ -232,8 +247,8 @@ function hello_mpq.__div(q1, q2)
 	require_mpq(q1, "Left operand")
 	require_mpq(q2, "Right operand")
 	
-	local n1, d1 = q1.nom, q1.den
-	local n2, d2 = q2.nom, q2.den
+	local n1, d1 = q1.num, q1.den
+	local n2, d2 = q2.num, q2.den
 
 	if n2:isZero() then error("Division by zero") end
 
@@ -259,12 +274,12 @@ end
 
 -- Returns the absolute value of the hello_mpq rational.
 function hello_mpq:abs()
-	return make(self.nom:abs(), self.den:clone())
+	return make(self.num:abs(), self.den:clone())
 end
 
 -- Returns the negated value of the hello_mpq rational.
 function hello_mpq:neg()
-	return make(-self.nom, self.den:clone())
+	return make(-self.num, self.den:clone())
 end
 
 -- Returns the negated value of the hello_mpq rational.
@@ -274,9 +289,9 @@ end
 
 -- Returns the reciprocal of the hello_mpq rational (inverse).
 function hello_mpq:inv()
-	if self.nom:isZero() then error("Division by zero (reciprocal of 0)") end
+	if self.num:isZero() then error("Division by zero (reciprocal of 0)") end
 	-- We use normalize just in case the numerator was negative
-	return normalize(make(self.den:clone(), self.nom:clone()))
+	return normalize(make(self.den:clone(), self.num:clone()))
 end
 
 ----------------------------------------------------
@@ -286,7 +301,7 @@ end
 -- Determines if the hello_mpq rational is equal to another hello_mpq rational.
 function hello_mpq.__eq(q1, q2)
 	-- Assumes both are already normalized
-	return q1.nom == q2.nom and q1.den == q2.den
+	return q1.num == q2.num and q1.den == q2.den
 end
 
 -- Determines if the hello_mpq rational is less than another hello_mpq rational.
@@ -294,18 +309,18 @@ function hello_mpq.__lt(q1, q2)
 
 	-- reference check first
 	if q1.den == q2.den then
-		return q1.nom < q2.nom
+		return q1.num < q2.num
 	end
 
 	-- Cross-multiply to avoid floating point issues
 	-- n1/d1 < n2/d2  =>  n1*d2 < n2*d1
-	return (q1.nom * q2.den) < (q2.nom * q1.den)
+	return (q1.num * q2.den) < (q2.num * q1.den)
 end
 
 -- Determines if the hello_mpq rational is less than or equal to another hello_mpq rational.
 function hello_mpq.__le(q1, q2)
 	-- n1*d2 <= n2*d1
-	return (q1.nom * q2.den) <= (q2.nom * q1.den)
+	return (q1.num * q2.den) <= (q2.num * q1.den)
 end
 
 -- Returns -1 if q1 < q2, 0 if q1 == q2, 1 if q1 > q2
@@ -315,13 +330,13 @@ function hello_mpq.compare(q1, q2)
 
 	-- Optimization: Same denominator check
 	if q1.den == q2.den then
-		if q1.nom == q2.nom then return 0 end
-		return q1.nom < q2.nom and -1 or 1
+		if q1.num == q2.num then return 0 end
+		return q1.num < q2.num and -1 or 1
 	end
 
 	-- General case: Cross-multiply
-	local left = q1.nom * q2.den
-	local right = q2.nom * q1.den
+	local left = q1.num * q2.den
+	local right = q2.num * q1.den
 
 	if left == right then return 0 end
 	return left < right and -1 or 1
@@ -331,24 +346,24 @@ end
 -- Polishing & Other
 ----------------------------------------------------
 -- from any function handler
-local function fromAny(nom, den)
+local function fromAny(num, den)
 	if den == nil then
 		den = 1
 	end
 
-	local n = to_mpq(nom)
+	local n = to_mpq(num)
 	local d = to_mpq(den)
 
 	return normalize(make(n, d))
 end
 
--- Constructs a hello_mpq rational from nominator and denominator.
+-- Constructs a hello_mpq rational from numerator and denominator.
 hello_mpq.new = fromAny
 
 -- make the table a callable function
 setmetatable(hello_mpq, {
-	__call = function(_, nom, den)
-		return fromAny(nom, den)
+	__call = function(_, num, den)
+		return fromAny(num, den)
 	end,
 })
 

@@ -35,7 +35,7 @@ end
 
 local function bench(name, iters, fn)
 	local t = timeit(fn, iters)
-	print(string.format("%-30s %8d iters   %0.6f sec   (%0.3f µs/op)",
+	print(string.format("%-30s %8d iters   %0.6f sec   (%0.3f ï¿½s/op)",
 		name, iters, t, (t / iters) * 1e6))
 end
 
@@ -124,6 +124,8 @@ local function util_section(label, A)
 	bench("neg()", ITERS, function() local _ = A:neg() end)
 	bench("inv()", ITERS, function() local _ = A:inv() end)
 	bench("toString()", ITERS, function() local _ = A:toString() end)
+	bench("toNumber()", ITERS, function() local _ = A:toNumber() end)
+	bench("toMixedRational()", ITERS, function() local _, _ = A:toMixedRational() end)
 end
 
 util_section("Small",  S1)
