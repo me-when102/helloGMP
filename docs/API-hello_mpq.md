@@ -80,15 +80,15 @@ print("e (to number):", e:toNumber())
 print("f (to number):", f:toNumber())
 
 -- to mixed rational
-local p1 = hello_mpq.new("432178904321804321", "7777")
+local p1 = hello_mpq.new("-432178904321804321", "7777")
 local p2 = hello_mpq.new("432143214", "54325")
-local p3 = hello_mpq.new("65436543", "1234")
+local p3 = hello_mpq.new("65436543", "-1234")
 local p4 = hello_mpq.new("76547654", "65423")
 
-print("p1 (to mixed rational):", p1:toMixedRational())
-print("p2 (to mixed rational):", p2:toMixedRational())
-print("p3 (to mixed rational):", p3:toMixedRational())
-print("p4 (to mixed rational):", p4:toMixedRational())
+print("p1 (to mixed rational):", p1:toMixedRational()) -- -55571416268716 1/707
+print("p2 (to mixed rational):", p2:toMixedRational()) -- 7954 42164/54325
+print("p3 (to mixed rational):", p3:toMixedRational()) -- -53028 9/1234
+print("p4 (to mixed rational):", p4:toMixedRational()) -- 1170 2744/65423
 
 print("took ".. tostring(os.clock() - t) .. " seconds") -- should take less than 0.01 seconds on modern hardware
 ```

@@ -149,11 +149,11 @@ function hello_mpq:toMixedRational()
 
 	-- Ensure the proper fraction numerator is positive
 	if remainder:isNegative() then
-		remainder = remainder + hello_mpz.abs(self.den)
+		remainder = remainder + self.den:abs()
 		intPart = intPart - 1
 	end
 
-	local fracPart = hello_mpq.new(remainder, hello_mpz.abs(self.den))
+	local fracPart = hello_mpq.new(remainder, self.den:abs())
 	return intPart, fracPart
 end
 
