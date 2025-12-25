@@ -215,7 +215,7 @@ function hello_mpz.fromString(s)
 	if #limbs == 0 then
 		return ZERO
 	end
-	
+
 	-- Actual construction
 	local t = make(sign, limbs)
 	trim(t)
@@ -2110,11 +2110,11 @@ end
 local function jacobi(a, n)
 	local result = 1
 	local aa = a % n
-	
+
 	if aa < ZERO then
 		aa = aa + n
 	end
-	
+
 	local nn = n:clone()
 
 	while aa ~= ZERO do
@@ -2165,10 +2165,10 @@ local function lucasUV(P, Q, k, n)
 		U = U2
 		V = V2
 		Qk = (Qk * Qk) % n
-		
+
 		local INV2 = (n + ONE) / TWO
 
-		
+
 		-- Addition step if bit is set
 		if bits[i] then
 			local U1 = (P * U + V) * INV2 % n
@@ -2194,17 +2194,19 @@ local function strongLucasSelfridge(n)
 		if j == -1 then
 			break
 		elseif j == 0 then
-			-- gcd(D, n) > 1
-			-- If n == |D|, n is prime
-			if n == D:abs() then
+			local d_abs = D:abs()
+			if n == d_abs then
 				return true
 			end
 			return false
 		end
 
-		D = D:abs() + TWO
-		sign = -sign
-		D = D * hello_mpz.new(sign)
+		-- Advance: |D| += 2, then flip sign via negation
+		if D >= ZERO then
+			D = -(D + TWO)
+		else
+			D = (-D) + TWO
+		end
 	end
 
 	local P = ONE
