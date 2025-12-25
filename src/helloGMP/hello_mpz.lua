@@ -1568,7 +1568,7 @@ function hello_mpz:pow(hgExp)
 	local base = self:clone()
 	local exp = hgExp:clone()
 
-	while exp > ZERO do
+	while exp:isPositive() do
 		if exp:isOdd() then
 			result = result * base
 		end
@@ -1835,7 +1835,7 @@ function hello_mpz.comb(n, r)
 	n, r = to_mpz(n), to_mpz(r)
 
 	-- r < 0 or r > n -> 0
-	if r < ZERO or r > n then
+	if r:isNegative() or r > n then
 		return ZERO
 	end
 
@@ -2023,7 +2023,7 @@ local function powmod(a, e, n)
 	local base = a % n
 	local exp = e:clone()
 
-	while exp > ZERO do
+	while exp:isPositive() do
 		if not exp:isEven() then
 			result = (result * base) % n
 		end
@@ -2064,7 +2064,7 @@ function hello_mpz:isProbablePrime(rounds)
 		if self == mp then
 			return true
 		end
-		if (self % mp) == ZERO then
+		if (self % mp):isZero() then
 			return false
 		end
 	end
@@ -2111,13 +2111,13 @@ local function jacobi(a, n)
 	local result = 1
 	local aa = a % n
 
-	if aa < ZERO then
+	if aa:isNegative() then
 		aa = aa + n
 	end
 
 	local nn = n:clone()
 
-	while aa ~= ZERO do
+	while not aa:isZero() do
 		while aa:isEven() do
 			aa = aa / TWO
 			local r = nn % EIGHT
@@ -2146,8 +2146,8 @@ local function lucasUV(P, Q, k, n)
 	local bits = {}
 	local kk = k:clone()
 
-	while kk > ZERO do
-		table_insert(bits, (kk % TWO) ~= ZERO)
+	while kk:isPositive() do
+		table_insert(bits, kk:isOdd())
 		kk = kk / TWO
 	end
 
@@ -2155,7 +2155,7 @@ local function lucasUV(P, Q, k, n)
 	local V = TWO
 	local Qk = ONE
 
-	local D = P * P - hello_mpz.new(4) * Q
+	local D = P * P - FOUR * Q
 
 	for i = #bits, 1, -1 do
 		-- Doubling
@@ -2221,7 +2221,7 @@ local function strongLucasSelfridge(n)
 	end
 
 	local U, V = lucasUV(P, Q, d, n)
-	if U == ZERO or V == ZERO then
+	if U:isZero() or V:isZero() then
 		return true
 	end
 
@@ -2230,7 +2230,7 @@ local function strongLucasSelfridge(n)
 	for _ = 1, s - 1 do
 		V = (V * V - TWO * Qk) % n
 		Qk = (Qk * Qk) % n
-		if V == ZERO then
+		if V:isZero() then
 			return true
 		end
 	end
@@ -2271,7 +2271,7 @@ local function makeIterator(a, b, step, exclusive)
 		step = to_mpz(step)
 	end
 
-	assert(step > ZERO, "step must be positive")
+	assert(step:isPositive(), "step must be positive")
 
 	-- Determine direction
 	local forward = a < b
@@ -2313,7 +2313,7 @@ local function normalizeRangeParams(a, b, step, callerName)
 	end
 
 	-- Validate step
-	assert(step > ZERO, "step must be positive")
+	assert(step:isPositive(), "step must be positive")
 
 	return b, step
 end
