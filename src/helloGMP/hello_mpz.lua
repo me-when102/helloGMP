@@ -2202,7 +2202,7 @@ local function strongLucasSelfridge(n)
 		end
 
 		-- Advance: |D| += 2, then flip sign via negation
-		if D >= ZERO then
+		if D.sign >= 0 then
 			D = -(D + TWO)
 		else
 			D = (-D) + TWO
