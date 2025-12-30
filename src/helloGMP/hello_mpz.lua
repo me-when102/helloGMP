@@ -2084,7 +2084,8 @@ function hello_mpz:isProbablePrime(rounds)
 	end
 
 	local n_minus_1 = self - ONE
-
+	local n_minus_2 = n_minus_1 - ONE
+	
 	-- deterministic bases first
 	for _, a0 in ipairs(DETERMINISTIC_BASES_64) do
 		local a = hello_mpz.fromNumber(a0)
@@ -2100,7 +2101,7 @@ function hello_mpz:isProbablePrime(rounds)
 	local k = rounds or 8 -- 8 by default
 	for _ = 1, k do
 		-- random base: 2 <= a <= n-2
-		local a = hello_mpz.random(TWO, n_minus_1 - ONE)
+		local a = hello_mpz.random(TWO, n_minus_2)
 		if millerRabinWitness(a, d, s, self, n_minus_1) then
 			return false
 		end
