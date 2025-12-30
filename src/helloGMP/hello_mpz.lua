@@ -2002,7 +2002,12 @@ function hello_mpz:multiFactorial(step)
 end
 
 ----------------------------------------------------
--- Primality Test
+-- Primality Tests + Extra
+----------------------------------------------------
+-- something to do with primes and stuff
+
+----------------------------------------------------
+-- Miller-Rabin Primality Test
 ----------------------------------------------------
 
 -- small primes for trial division
@@ -2104,7 +2109,9 @@ function hello_mpz:isProbablePrime(rounds)
 	return true
 end
 
--- BAILLIE-PSW
+----------------------------------------------------
+-- Baillie-PSW Primality Test
+----------------------------------------------------
 
 -- Jacobi symbol (a/n), n odd > 0
 local function jacobi(a, n)
@@ -2254,6 +2261,50 @@ function hello_mpz:isPrime()
 
 	-- Strong Lucas test
 	return strongLucasSelfridge(self)
+end
+
+----------------------------------------------------
+-- Adjacent Prime Detectors
+----------------------------------------------------
+
+-- Returns the smallest prime strictly greater than the hello_mpz number.
+-- Uses Baillie-PSW for prime checking.
+function hello_mpz:nextPrime()
+	-- get a good candidate
+	local candidate = if self < TWO then TWO:clone()
+		elseif self < THREE then THREE:clone()
+		elseif self:isEven() then self + ONE
+		else self + TWO
+	
+	-- Trial and Error (oh no)
+	while not candidate:isPrime() do
+		candidate = candidate + TWO -- skip even numbers
+	end
+
+	return candidate
+end
+
+-- Returns the largest prime strictly smaller than the hello_mpz number.
+-- Uses Baillie-PSW for prime checking.
+function hello_mpz:previousPrime()
+	-- edge case: case where no smaller prime exists
+	assert(self > TWO, "no prime strictly smaller than " .. tostring(self))
+	
+	-- get a good candidate
+	local candidate = if self < TWO then TWO:clone()
+		elseif self < THREE then THREE:clone()
+		elseif self:isEven() then self - ONE
+		else self - TWO
+	
+	while not candidate:isPrime() do
+		candidate = candidate - TWO
+		
+		if candidate <= TWO then
+			return TWO
+		end
+	end
+	
+	return candidate
 end
 
 ----------------------------------------------------

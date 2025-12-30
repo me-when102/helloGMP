@@ -9,6 +9,7 @@ For clarity, the following complexity notation is used throughout:
 - `m` → number of limbs in the big integer
 - `len(s)` → length of input string
 - `L` → number of limbs in the largest operand; comparisons may early-exit on differing limb counts.
+- `M(?)` → algorithm complexity used in multiplication, usually denoted in `M(m)` for number of limbs. `?` is a placeholder for input length inside `M`.
 
 ### Available Features
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, `//`, `%`, `^`, and unary `-`
@@ -69,6 +70,8 @@ For clarity, the following complexity notation is used throughout:
 - **Primality Tests**:
     - `:isPrime()` → Baillie-PSW algorithm, `O((log n)^3)`
     - `:isProbablePrime(k)` → Miller-Rabin algorithm, `O(k * (log n)^3)`
+    - `:nextPrime()` → Finds the least prime number strictly above the number, `O(M(log n) * (log n)^2)`, worst case `O(M(log n) * (log n)^3`
+    - `:previousPrime()` → Finds the greatest prime number strictly under the number, `O(M(log n) * (log n)^2`, worst case `O(M(log n) * (log n)^3`
 - **Factorials**:
     - `factorial()` → Computes n! using binary splitting, `O(n · m^1.585)` (Karatsuba path)
     - `doubleFactorial()` → Computes n!! with step 2, `O(n * m^1.585)`
@@ -447,6 +450,11 @@ local num = hello_mpz.new("32416190072")
 local isProbPrime = num:isProbablePrime(10) -- 10 iterations
 
 print("Probabilistic primality test result:", isProbPrime)
+
+-- Next prime and previous prime
+local n = hello_mpz.new("1000")
+print(n:nextPrime())     -- 1009
+print(n:previousPrime()) -- 997
 ```
 
 ### Factorials 
