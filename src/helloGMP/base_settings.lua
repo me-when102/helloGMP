@@ -6,13 +6,14 @@ local settings = {}
 -- set-based settings are always lower-case, otherwise error.
 
 -- [[ CORE SETTINGS ]]
-settings.BASE = 10^7 -- limb base (decimal base is a must or it will corrupt, above 10^7 (like 10^8) leads to precision drift)
+settings.BASE = 10^7 -- limb base (10^7 recommended, and results will likely change, so don't change this)
 settings.MODE = "strict" -- parsing mode; options: strict, nonstrict
 
 -- [[ FLOAT SETTINGS ]]
-settings.DEFAULT_PRECISION = 15
-settings.ROUNDING_MODE = "up" -- rounding mode; options: normal, up, down
-settings.FLOAT_DISPLAY_MODE = "fixed" -- float mode; options: scientific, fixed
+settings.DEFAULT_PRECISION = 256 -- in bits
+settings.DEFAULT_DIGITS = 10 -- shows how many digits should it be displayed.
+settings.FLOAT_DISPLAY_MODE = "fixed" -- float mode; options: fixed, scientific
+settings.ROUNDING_MODE = "normal" -- rounding mode; options: normal, up, down (unsure if this is really used though)
 
 -- DO NOT MODIFY PAST THIS POINT
 --------------------------------------------------------------------------------------------
