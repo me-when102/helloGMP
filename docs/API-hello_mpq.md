@@ -8,19 +8,20 @@ The `hello_mpq` module is one of the main libraries of the **helloGMP** library 
 - `.compare(a, b)` function to return `1`, `0`, or `-1` results.
 
 - **Core Constructors & Conversions**
-  - `hello_mpz.new(nom, den)` → nom = nominator and den = denominator, can be `hello_mpz` number, native Luau number, or string.
-  - `hello_mpz(nom, den)` → Same as `.new()` but serves as a shortcut.
-  - `hello_mpz.fromString(nom, den)` → must be string number
-  - `hello_mpz.fromNumber(nom, den)` → must be native Luau number
+  - `hello_mpz.new(num, den)` → num = numerator and den = denominator, can be `hello_mpz` number, native Luau number, or string
+  - `hello_mpz(num, den)` → Same as `.new()` but serves as a shortcut.
+  - `hello_mpz.fromString(num, den)` → numerator and denominator must be string number
+  - `hello_mpz.fromNumber(num, den)` → numerator and denominator must be native Luau number
   - `:toString()` → Convert rational to string
   - `__tostring` → Metamethod of `:toString()`
   - `:toNumber()` → Convert rational to approximate native lua number. Can lose precision.
-  - `:toMixedRational()` → Convert rational to a mixed rational, returning two values: Integer part, and fractional part.
+  - `:toMixedRational()` → Convert rational to a mixed rational, returning two values: Integer part, and fractional part
 
 - **Utilities**
   - `:abs()` - Returns the absolute value of the rational.
   - `:neg()` - Returns the negated value of the rational (unary minus, `__unm`)
   - `:inv()` - Returns the inversed (reciprocal) value of the rational
+  - `:clone()` - Clones the hello_mpq rational.
 
 ## ✨ Potentially upcoming features for `hello_mpq`
 - Approximated float-number representation.
