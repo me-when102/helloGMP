@@ -358,13 +358,13 @@ function hello_mpf.__add(a, b)
 	local prec = math_max(a.precision, b.precision)
 
 	if a.sign == b.sign then
-		-- Same sign → add magnitudes
+		-- Same sign -> add magnitudes
 		local mant_a, mant_b, exp = align_to_max_exponent(a, b)
 		local sum_mant = mant_a + mant_b
 		local result = make(a.sign, sum_mant, exp, prec)
 		return normalize(result)
 	else
-		-- Opposite signs → subtract magnitudes
+		-- Opposite signs -> subtract magnitudes
 		local mant_a, mant_b, exp = align_to_max_exponent(a, b)
 		local cmp = mant_a:compare(mant_b)
 
@@ -419,7 +419,7 @@ function hello_mpf.__mul(a, b)
 	-- Exponent sum (may overflow/underflow, but Luau handles big ints for exp fine)
 	local result_exp = a.exponent + b.exponent
 
-	-- Mantissa product — this is the heavy part
+	-- Mantissa product - this is the heavy part
 	local product_mant = a.mantissa * b.mantissa
 
 	-- Result precision = max of both
