@@ -48,7 +48,6 @@ local table_unpack = table.unpack or unpack
 -- bit 32 replacements
 
 local bit32_band = bit32.band
-local bit32_lshift = bit32.lshift
 
 -- direct local caching replacements
 
@@ -65,6 +64,25 @@ local ipairs = ipairs
 local rawequal = rawequal
 
 local MPZ_MT = getmetatable(setmetatable({}, hello_mpz))
+
+----------------------------------------------------
+-- Guarding
+----------------------------------------------------
+
+-- converts anything to hello_mpz number if possible
+local function to_mpz(v)
+	if getmetatable(v) == MPZ_MT then
+		return v
+	end
+	return hello_mpz.new(v)
+end
+
+-- assert variable if the variable is hello_mpz
+local function require_mpz(v, name)
+	if getmetatable(v) ~= MPZ_MT then
+		error(name .. " must be a hello_mpz instance. Use hello_mpz.new(value) to convert.", 3)
+	end
+end
 
 ----------------------------------------------------
 -- Raw Constructor System
@@ -144,19 +162,6 @@ local function normalize_limbs(limbs)
 	-- trim leading zeros
 	while #limbs > 1 and limbs[#limbs] == 0 do
 		limbs[#limbs] = nil
-	end
-end
-
-local function to_mpz(v)
-	if getmetatable(v) == MPZ_MT then
-		return v
-	end
-	return hello_mpz.new(v)
-end
-
-local function require_mpz(v, name)
-	if getmetatable(v) ~= MPZ_MT then
-		error(name .. " must be a hello_mpz instance. Use hello_mpz.new(value) to convert.", 3)
 	end
 end
 
