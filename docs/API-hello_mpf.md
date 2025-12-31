@@ -173,8 +173,6 @@ Benchmarks were performed on `hello_mpf` to evaluate the relative cost of core f
 - **Medium**: ~20 decimal digits (128 bits of precision)
 - **Large**: ~40 decimal digits (256 bits of precision)
 
----
-
 ## Arithmetic Operations
 
 | Operation        | Small (s) | Medium (s) | Large (s) |
@@ -184,15 +182,11 @@ Benchmarks were performed on `hello_mpf` to evaluate the relative cost of core f
 | Multiplication   | 0.003050  | 0.008612   | 0.020775  |
 | Division         | 0.002292  | 0.005513   | 0.012263  |
 
----
-
 ## Comparison Operations
 
 | Operation              | Small (s) | Medium (s) | Large (s) |
 |------------------------|-----------|------------|-----------|
 | Equality & Ordering    | 0.000120  | 0.000075   | 0.000093  |
-
----
 
 ## Utility Operations
 
@@ -201,8 +195,6 @@ Benchmarks were performed on `hello_mpf` to evaluate the relative cost of core f
 | clone()          | 0.000098  | 0.000078   | 0.000037  |
 | abs()            | 0.000092  | 0.000030   | 0.000047  |
 | neg / __unm     | 0.000051  | 0.000034   | 0.000057  |
-
----
 
 ## Conversion Operations
 
