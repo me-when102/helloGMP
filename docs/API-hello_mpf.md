@@ -1,6 +1,8 @@
 # HelloGMP: `hello_mpf`
 The `hello_mpf` module is one of the main libraries of the **helloGMP** library which provides big approximate floating-point arithmetic. Unlike the two libraries, `hello_mpf` is based on the Multiple-Precision Floating-Point Reliable (MPFR) library.
 
+> NOTE: `hello_mpf` is still affected by floating-point drifts, if you want exact values please use `hello_mpq` instead.
+
 ## ✨ Features of `hello_mpf`
 
 - **Arithmetic operators**: Overloaded `+`, `=`, `*`, `/`, and unary `-`
@@ -27,25 +29,25 @@ The `hello_mpf` module is one of the main libraries of the **helloGMP** library 
 ### Construction and Representation
 
 ```lua
--- WIP
+-- Examples coming soon.
 ```
 
 ### Arithmetic
 
 ```lua
--- WIP
+-- Examples coming soon.
 ```
 
 ### Comparison Operations
 
 ```lua
--- WIP
+-- Examples coming soon.
 ```
 
 ### Utilities
 
 ```lua
--- WIP
+-- Examples coming soon.
 ```
 
 ## 🔨 Performance Benchmarks (tested on helloGMP 1.3.0)
