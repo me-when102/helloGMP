@@ -273,6 +273,11 @@ end
 -- Utilities
 ----------------------------------------------------
 
+-- Clones the hello_mpq rational to prevent mutation.
+function hello_mpq:clone()
+	return make(self.num:clone(), self.den:clone())
+end
+
 -- Returns the absolute value of the hello_mpq rational.
 function hello_mpq:abs()
 	return make(self.num:abs(), self.den:clone())

@@ -315,6 +315,16 @@ function hello_mpf:clone()
 	return make(self.sign, self.mantissa:clone(), self.exponent, self.precision)
 end
 
+-- Returns the absolute value of the hello_mpf double.
+function hello_mpf:abs()
+	if not self.sign then
+		return self:clone()  -- already positive
+	end
+	local res = self:clone()
+	res.sign = false
+	return res
+end
+
 -- Returns the negated value of the hello_mpf double.
 function hello_mpf:neg()
 	if self.mantissa:isZero() then return self:clone() end
