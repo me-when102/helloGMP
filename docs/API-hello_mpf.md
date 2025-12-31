@@ -21,4 +21,32 @@ The `hello_mpf` module is one of the main libraries of the **helloGMP** library 
   - `:neg()` - Returns the negated value of the floating-point number (unary minus, `__unm`)
   - `:abs()` - Returns the absolute value of the floating-point number
   - `:clone()` - Clones the floating-point number.
-  
+
+## Uses and Demonstrations of `hello_mpf`
+
+### Construction and Representation
+
+```lua
+-- WIP
+```
+
+### Arithmetic
+
+```lua
+-- WIP
+```
+
+### Comparison Operations
+
+```lua
+-- WIP
+```
+
+### Utilities
+
+```lua
+-- WIP
+```
+
+## 🔨 Performance Benchmarks (tested on helloGMP 1.3.0)
+Benchmarks for `hello_mpf` is not available at the moment. Perhaps later?

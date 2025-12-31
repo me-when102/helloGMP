@@ -123,7 +123,7 @@ print("Big addition:", big_1 + big_2) -- 246913579824691/395061728439506
 print("Big multiplication:", big_1 * big_2) -- 24691357802469/395061728439506
 ```
 
-## Comparison Operations
+### Comparison Operations
 
 ```lua
 local hello_mpq = require(path.to.hello_mpq)
@@ -144,7 +144,7 @@ print(hello_mpq.compare(a, c))   -- 0 (a == c)
 print(hello_mpq.compare(b, a))   -- 1 (b > a)
 ```
 
-## Utilities
+### Utilities
 
 ```lua
 local hello_mpq = require(path.to.hello_mpq)
