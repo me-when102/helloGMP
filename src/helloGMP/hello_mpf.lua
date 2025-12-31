@@ -329,6 +329,65 @@ function hello_mpf.__unm(a)
 end
 
 ----------------------------------------------------
+-- Comparison
+----------------------------------------------------
+
+function hello_mpf.__eq(a, b)
+	require_mpf(a, "Left operand")
+	require_mpf(b, "Right operand")
+
+	-- Fast path: signs differ -> not equal (except zero)
+	if a.sign ~= b.sign then
+		return a.mantissa:isZero() and b.mantissa:isZero()
+	end
+
+	-- Signs same: exponents must match, then mantissas
+	if a.exponent ~= b.exponent then
+		return false
+	end
+
+	return a.mantissa:compare(b.mantissa) == 0
+end
+
+function hello_mpf.__lt(a, b)
+	require_mpf(a, "Left operand")
+	require_mpf(b, "Right operand")
+
+	-- Handle signs first
+	if a.sign ~= b.sign then
+		-- Negative < positive
+		-- Positive < negative is false
+		return a.sign
+	end
+
+	-- Same sign: compare exponents first
+	if a.exponent < b.exponent then
+		-- Larger exponent means larger magnitude
+		return not a.sign  -- if positive: smaller exp -> smaller; if negative: reverse
+	end
+	if a.exponent > b.exponent then
+		return a.sign     -- opposite of above
+	end
+
+	-- Exponents equal: compare mantissas
+	local cmp = hello_mpz.compare(a.mantissa, b.mantissa)
+	
+	if cmp == 0 then
+		return false  -- equal -> not less
+	end
+
+	-- If positive: larger mantissa -> larger number
+	-- If negative: larger mantissa -> smaller number (more negative)
+	return (cmp < 0) ~= a.sign
+end
+
+function hello_mpf.__le(a, b)
+	require_mpf(a, "Left operand")
+	require_mpf(b, "Right operand")
+	return a < b or a == b
+end
+
+----------------------------------------------------
 -- Addition and Subtraction
 ----------------------------------------------------
 
