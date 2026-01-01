@@ -17,7 +17,7 @@ Where:
 
 The `hello_mpf` normalizer adjusts the mantissa and exponent to enforce this invariant:
 
-$$ 2^{p - 1} \;\le\; \text{mantissa} \;<\; 2^{p} $$
+$$ 2^{p - 1} \le \text{mantissa} < 2^{p} $$
 
 Where `p = precision`. This ensures stable rounding and predictable arithmetic behaviour.
 
