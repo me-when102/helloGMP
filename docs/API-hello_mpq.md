@@ -1,6 +1,18 @@
 # HelloGMP: `hello_mpq`
 The `hello_mpq` module is one of the main libraries of the **helloGMP** library which provides big and exact rational number arithmetic. How `hello_mpq` works depends on the foundations of the `hello_mpz` module's arithmetic foundations, therefore its performance is significantly slower in asymptotic complexity.
 
+## `hello_mpq` System Overview
+
+`hello_mpq` implements a rational number using two arbitrary precision integers from `hello_mpz`. It is the simplest of the three main libraries.
+
+This value is stored in this rational form:
+
+$$ \text{value} = \frac{\text{numerator}}{\text{denominator}} $$
+
+Where:
+* `numerator` is a `hello_mpz` integer. It can be positive, negative, or zero.
+* `denominator` is a `hello_mpz` integer. It must be positive and never zero.
+
 ## ✨ Features of `hello_mpq`
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`

@@ -1,7 +1,25 @@
 # HelloGMP: `hello_mpf`
 The `hello_mpf` module is one of the main libraries of the **helloGMP** library which provides big approximate floating-point arithmetic. Unlike the two libraries, `hello_mpf` is based on the Multiple-Precision Floating-Point Reliable (MPFR) library.
 
-> NOTE: `hello_mpf` is still affected by floating-point drifts, if you want exact values please use `hello_mpq` instead.
+> NOTE: `hello_mpf` is still affected by floating-point drifts in representation, if you want exact values please use `hello_mpq` instead.
+
+## `hello_mpf` System Overview.
+
+`hello_mpf` is implements arbitrary precision floating-point numbers using a system modeled after the **MPFR** library. Unlike `hello_mpz`, which stores integers in decimal base chunks, `hello_mpf` stores number in a **binary scientific-notation format**:
+
+$$ \text{value} = \text{sign} * \text{mantissa} * 2^{\text{exponent}} $$
+
+Where:
+* `sign` is a boolean (`false = positive`, `true = negative`)
+* `mantissa` is a `hello_mpz` integer which stores the significant bits of the number.
+* `exponent` is a Lua number (integer) which represents the power of two.
+* `precision` is the number of bits to keep in the mantissa. The default is the `DEFAULT_PRECISION` setting parameter in the `base_settings` module.
+
+The `hello_mpf` normalizer adjusts the mantissa and exponent to enforce this invariant:
+
+$$ 2^{p - 1} \;\le\; \text{mantissa} \;<\; 2^{p} $$
+
+Where `p = precision`. This ensures stable rounding and predictable arithmetic behaviour.
 
 ## ✨ Features of `hello_mpf`
 
