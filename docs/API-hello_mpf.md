@@ -8,6 +8,7 @@ The `hello_mpf` module is one of the main libraries of the **helloGMP** library 
 - **Arithmetic operators**: Overloaded `+`, `=`, `*`, `/`, and unary `-`
 - **Comparison operators**: Overloaded `>`, `>=`, `==`, `<=`, `<`
   (`>` and `>=` are inherited from `__lt` and `__le`)
+- **Customizable and Optional Precision for Constructors**: `hello_mpf` constructors have an optional precision parameter determining how many bits the value would have. Higher precision = more accuracy but slower operations.
 
 - **Core Constructors & Conversions**
   - `hello_mpf.new(value, precision)` → Creates the floating-point number with its value and precision (in bits, and optional).
