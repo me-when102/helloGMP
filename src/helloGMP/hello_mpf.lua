@@ -186,8 +186,8 @@ local function from_rational(sign, num, den, prec)
 	return make(sign, mant, exp2, prec)
 end
 
--- Constructs a hello_mpf double from a string.
--- Precision tooltip here.
+-- Constructs a hello_mpf double from a string with optional precision.
+-- Precision: Number of bits used for the mantissa, higher precision means more accuracy and reduces rounding error, but slower operations.
 function hello_mpf.fromString(value, precision)
 	local prec = precision or DEFAULT_PRECISION
 
@@ -196,8 +196,8 @@ function hello_mpf.fromString(value, precision)
 	return normalize(from_rational(sign, num, den, prec))
 end
 
--- Constructs a hello_mpf double from a number (double).
--- Precision tooltip here.
+-- Constructs a hello_mpf double from a number (double) with optional precision.
+-- Precision: Number of bits used for the mantissa, higher precision means more accuracy and reduces rounding errors, but slower operations.
 function hello_mpf.fromNumber(value, precision)
 	local prec = precision or DEFAULT_PRECISION
 	
@@ -218,7 +218,8 @@ function hello_mpf.fromNumber(value, precision)
 	return normalize(make(sign, mantissa, exp - prec, prec))
 end
 
--- tooltip to be determined
+-- Converts the hello_mpf double into a binary scientific representation.
+-- This functions exists for debug purposes rather than a normal display.
 function hello_mpf:toScientificString()
 	local sign_str = self.sign and "-" or ""
 	return string_format(
@@ -230,7 +231,7 @@ function hello_mpf:toScientificString()
 	)
 end
 
--- Converts hello_mpf to a decimal string with `digits` decimal places
+-- Converts the hello_mpf double to a decimal string with `digits` decimal places.
 function hello_mpf:toDecimalString(digits)
 	digits = digits or DEFAULT_DIGITS
 
@@ -286,7 +287,8 @@ function hello_mpf:toDecimalString(digits)
 	end
 end
 
--- tooltip to be determined
+-- Converts the hello_mpf double into a string in either fixed or scientific format.
+-- The chosen display mode can be adjusted in the base_settings module.
 function hello_mpf:toString(digits)
 	digits = digits or DEFAULT_DIGITS
 	
@@ -303,7 +305,8 @@ function hello_mpf:toString(digits)
 	-- return nothing because FLOAT_DISPLAY_MODE must be either two of them, they are handled in base_settings anyway.
 end
 
--- tooltip to be determined
+-- Converts the hello_mpf double into a string in either fixed or scientific format.
+-- The chosen display mode can be adjusted in the base_settings module.
 hello_mpf.__tostring = hello_mpf.toString
 
 ----------------------------------------------------
@@ -342,6 +345,7 @@ end
 -- Comparison
 ----------------------------------------------------
 
+-- Determines if the hello_mpf double is equal to the hello_mpf double.
 function hello_mpf.__eq(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -359,6 +363,8 @@ function hello_mpf.__eq(a, b)
 	return a.mantissa:compare(b.mantissa) == 0
 end
 
+-- Determines if the hello_mpf double is less than to the hello_mpf double.
+-- For full coverage please use native lua operators instead.
 function hello_mpf.__lt(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -391,6 +397,8 @@ function hello_mpf.__lt(a, b)
 	return (cmp < 0) ~= a.sign
 end
 
+-- Determines if the hello_mpf double is less than or equal to the hello_mpf double.
+-- For full coverage please use native lua operators instead.
 function hello_mpf.__le(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -416,7 +424,7 @@ local function align_to_max_exponent(a, b)
 	end
 end
 
--- tooltip to be determined
+-- Adds two hello_mpf doubles.
 function hello_mpf.__add(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -450,7 +458,7 @@ function hello_mpf.__add(a, b)
 	end
 end
 
--- tooltip to be determined
+-- Subtracts two hello_mpf doubles.
 function hello_mpf.__sub(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -472,7 +480,7 @@ end
 -- Multiplication
 ----------------------------------------------------
 
--- tooltip to be determined
+-- Multiplies two hello_mpf doubles.
 function hello_mpf.__mul(a, b)
 	require_mpf(a, "Left operand")
 	require_mpf(b, "Right operand")
@@ -506,7 +514,7 @@ end
 -- Division
 ----------------------------------------------------
 
--- tooltip to be determined
+-- Divides two hello_mpf doubles.
 function hello_mpf.__div(a, b)
 	require_mpf(a, "Left operand (dividend)")
 	require_mpf(b, "Right operand (divisor)")
@@ -566,7 +574,8 @@ local function fromAny(value, precision)
 	end
 end
 
--- Construct a hello_mpf double from string or number.
+-- Construct a hello_mpf double from string or number with optional precision.
+-- Precision: Number of bits used for the mantissa, higher precision means more accuracy and reduces rounding errors, but slower operations.
 hello_mpf.new = fromAny
 
 -- make the table a callable function

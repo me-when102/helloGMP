@@ -1662,8 +1662,10 @@ end
 -- cutoffs
 local IROOT_NEWTON_CUTOFF = 25
 
+-- Computes x^e using binary exponentiation (fast exponentiation).
+-- Assumes e is a non-negative Lua number. Uses repeated squaring.
 local function pow_huge(x, e)
-	local result = ONE
+	local result = ONE:clone()
 	local base = x:clone()
 	while e > 0 do
 		if e % 2 == 1 then
@@ -2090,7 +2092,7 @@ function hello_mpz:isProbablePrime(rounds)
 
 	local n_minus_1 = self - ONE
 	local n_minus_2 = n_minus_1 - ONE
-	
+
 	-- deterministic bases first
 	for _, a0 in ipairs(DETERMINISTIC_BASES_64) do
 		local a = hello_mpz.fromNumber(a0)
@@ -2281,7 +2283,7 @@ function hello_mpz:nextPrime()
 		elseif self < THREE then THREE:clone()
 		elseif self:isEven() then self + ONE
 		else self + TWO
-	
+
 	-- Trial and Error (oh no)
 	while not candidate:isPrime() do
 		candidate = candidate + TWO -- skip even numbers
@@ -2295,21 +2297,21 @@ end
 function hello_mpz:previousPrime()
 	-- edge case: case where no smaller prime exists
 	assert(self > TWO, "no prime strictly smaller than " .. tostring(self))
-	
+
 	-- get a good candidate
 	local candidate = if self < TWO then TWO:clone()
 		elseif self < THREE then THREE:clone()
 		elseif self:isEven() then self - ONE
 		else self - TWO
-	
+
 	while not candidate:isPrime() do
 		candidate = candidate - TWO
-		
+
 		if candidate <= TWO then
 			return TWO
 		end
 	end
-	
+
 	return candidate
 end
 
