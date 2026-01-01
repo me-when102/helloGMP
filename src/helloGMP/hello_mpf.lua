@@ -78,7 +78,7 @@ local function pow2(n)
 		return ONE
 	end
 
-	local r = ONE
+	local r = ONE:clone()
 	for _ = 1, n do
 		r = r * TWO
 	end
