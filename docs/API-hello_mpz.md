@@ -1,6 +1,22 @@
 # HelloGMP: `hello_mpz`
 The `hello_mpz` module is the core of the helloGMP library, providing high‑performance arbitrary‑precision integer arithmetic. It is designed to handle numbers far beyond native Luau limits, while maintaining speed and correctness through optimized algorithms. This module serves as the foundation for advanced features such as number theory, combinatorics, and base conversions.
 
+## `hello_mpz` System Overview
+
+`hello_mpz` stores integers using a sign and a list of base-`BASE` limbs:
+
+$$ \text{value} = \text{sign} \times \sum_{i=0}^{n-1} \text{limbs}[i] \cdot \text{BASE}^i $$
+
+Where:
+- `sign` is `+1` for positive, `0` for zero, and `-1` for negative.
+- `limbs` is a little-endian array of non-negative Lua numbers (integers).
+- `BASE` is a power of 10 chosen for efficient conversion.
+
+`hello_mpz`'s normaliztion ensures:
+- no negative limbs,
+- no limbs is greater than or equal to base,
+- and no leading zero limbs.
+
 ## ✨ Features of `hello_mpz`
 The `hello_mpz` module includes a wide range of capabilities.
 For clarity, the following complexity notation is used throughout:

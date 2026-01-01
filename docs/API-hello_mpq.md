@@ -10,8 +10,8 @@ This value is stored in this rational form:
 $$ \text{value} = \frac{\text{numerator}}{\text{denominator}} $$
 
 Where:
-* `numerator` is a `hello_mpz` integer. It can be positive, negative, or zero.
-* `denominator` is a `hello_mpz` integer. It must be positive and never zero.
+- `numerator` is a `hello_mpz` integer. It can be positive, negative, or zero.
+- `denominator` is a `hello_mpz` integer. It must be positive and never zero.
 
 ## ✨ Features of `hello_mpq`
 - **Arithmetic operators**: Overloaded `+`, `-`, `*`, `/`, and unary `-`
