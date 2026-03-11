@@ -2171,6 +2171,8 @@ local function lucasUV(P, Q, k, n)
 	local Qk = ONE
 
 	local D = P * P - FOUR * Q
+	
+	local INV2 = (n + ONE) / TWO
 
 	for i = #bits, 1, -1 do
 		-- Doubling
@@ -2180,9 +2182,6 @@ local function lucasUV(P, Q, k, n)
 		U = U2
 		V = V2
 		Qk = (Qk * Qk) % n
-
-		local INV2 = (n + ONE) / TWO
-
 
 		-- Addition step if bit is set
 		if bits[i] then
@@ -2202,7 +2201,6 @@ end
 local function strongLucasSelfridge(n)
 	-- Step 1: choose D = 5, -7, 9, -11, ...
 	local D = FIVE:clone()
-	local sign = 1
 
 	while true do
 		local j = jacobi(D, n)
@@ -2263,6 +2261,9 @@ function hello_mpz:isPrime()
 	end
 
 	-- Miller–Rabin base 2
+	-- N/A
+	
+	-- Fermat base-2
 	if powmod(TWO, self - ONE, self) ~= ONE then
 		return false
 	end
